@@ -470,11 +470,10 @@ def test_devtools_owner_rejects_confirmed_non_amazon_listener(monkeypatch):
 def test_devtools_owner_fails_closed_and_requires_exact_install_identity(monkeypatch, tmp_path):
     monkeypatch.setattr(amazon_devtools, "_port_owner_entries", lambda port: [])
     unavailable = amazon_devtools._devtools_owner_trust(52856, force=True)
-    assert unavailable == {
-        "trusted": False,
-        "status": "unavailable",
-        "detail": "Windows could not verify the enhanced metadata listener owner",
-    }
+    assert unavailable["trusted"] is False
+    assert unavailable["status"] == "unavailable"
+    assert unavailable["detail"] == "Windows could not verify the enhanced metadata listener owner"
+    assert unavailable["query"]["status"] == "unavailable"
 
     fake = tmp_path / "not-amazonmusic-helper.exe"
     fake.write_bytes(b"fake")

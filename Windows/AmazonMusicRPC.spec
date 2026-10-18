@@ -56,6 +56,7 @@ a = Analysis(
         'liblistenbrainz',
         'notification_reader',
         'amazon_devtools',
+        'windows_listener_owner',
         'amazon_status_overlay',
         'amazify_compat',
         'amazify_rpc_bridge',

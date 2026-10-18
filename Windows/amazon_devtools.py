@@ -11,6 +11,7 @@ import socket
 import struct
 import subprocess
 import sys
+import threading
 import time
 import uuid
 from ctypes import wintypes
@@ -19,6 +20,7 @@ import requests
 from config import load_config, normalize_amazon_music_link_region
 from amazon_domains import AMAZON_MUSIC_HOSTS, AMAZON_WEBAPP_HOSTS, is_amazon_webapp_url
 from launcher_diagnostics import format_launcher_failure, launcher_attempt_failure, launcher_candidate_label
+from windows_listener_owner import query_listener_owners
 
 
 APP_USER_MODEL_ID = "AmazonMobileLLC.AmazonMusic_kc6t79cpj4tp0!AmazonMobileLLC.AmazonMusic"
@@ -49,6 +51,9 @@ _STORE_PACKAGE_FULL_NAME_RE = re.compile(
 _DEVTOOLS_PORT = None
 _LAST_LAUNCH = {}
 _PORT_OWNER_CACHE = {"port": 0, "expires": 0.0, "value": None}
+_PORT_OWNER_QUERY = threading.local()
+_PORT_OWNER_LOG_STATE = {}
+_PORT_OWNER_LOG_LOCK = threading.Lock()
 
 
 def _valid_devtools_port(value):
@@ -1152,35 +1157,53 @@ def _valid_target_websocket(target, port):
 
 
 def _port_owner_entries(port):
-    script = f"""
-$items = @()
-try {{
-    Get-NetTCPConnection -State Listen -LocalPort {int(port)} -ErrorAction Stop | ForEach-Object {{
-        $owner = $_.OwningProcess
-        $current = $owner
-        $names = @()
-        $paths = @()
-        $pids = @()
-        for ($depth = 0; $depth -lt 6 -and $current -gt 0; $depth++) {{
-            $process = Get-CimInstance Win32_Process -Filter "ProcessId=$current" -ErrorAction SilentlyContinue
-            if (-not $process) {{ break }}
-            $pids += $process.ProcessId
-            $names += $process.Name
-            $paths += $process.ExecutablePath
-            if ($process.ParentProcessId -eq $current) {{ break }}
-            $current = $process.ParentProcessId
-        }}
-        $items += [PSCustomObject]@{{
-            Pid = $owner
-            Pids = @($pids)
-            Names = @($names)
-            Paths = @($paths)
-        }}
-    }}
-}} catch {{}}
-$items | ConvertTo-Json -Compress
-"""
-    return _powershell_json(script, timeout=4)
+    started = time.monotonic()
+    query = {
+        "status": "api_error",
+        "duration_ms": 0,
+        "backend": "win32",
+        "error": "Windows did not complete the owner query",
+        "diagnostic_build": "issue52-3",
+        "port": int(port),
+    }
+    _PORT_OWNER_QUERY.value = query
+    entries = []
+    try:
+        result = query_listener_owners(int(port))
+        for key in ("status", "duration_ms", "stage", "windows_error_code"):
+            if key in result:
+                query[key] = result[key]
+        query["error"] = _sanitize_owner_error(result.get("error", ""))
+        if query["status"] == "success":
+            entries = result.get("entries", [])
+    except Exception as exc:
+        query.update(status="api_error", stage="native_query", error=_sanitize_owner_error(exc))
+    query["duration_ms"] = round((time.monotonic() - started) * 1000, 3)
+    _log_owner_query(query)
+    return entries
+
+
+def _sanitize_owner_error(value):
+    message = _clean(value)
+    message = re.sub(r"(?i)(?:[a-z]:\\|\\\\)[^\s,;]+", "<path>", message)
+    return message[:240]
+
+
+def _log_owner_query(query):
+    status = query.get("status", "unavailable")
+    error = query.get("error", "")
+    key = (query.get("port"), status, error if status not in {"success", "no_listener", "listener_identity_incomplete"} else "")
+    now = time.monotonic()
+    with _PORT_OWNER_LOG_LOCK:
+        previous = _PORT_OWNER_LOG_STATE.get(query.get("port"))
+        changed = previous is None or previous.get("key") != key
+        repeated_error_due = bool(error and previous and previous.get("key") == key and now - previous.get("logged_at", 0) >= 60)
+        if changed or repeated_error_due:
+            recovery = previous and previous.get("status") not in {"success", "no_listener"} and status == "success"
+            label = "recovered" if recovery else status
+            detail = f"{query.get('stage', '')}: {error}" if error else query.get("stage", "")
+            print(f"[Metadata owner] build=issue52-3 backend=win32 port={query.get('port')} status={label} duration_ms={query.get('duration_ms')}" + (f" detail={_sanitize_owner_error(detail)}" if detail else ""))
+            _PORT_OWNER_LOG_STATE[query.get("port")] = {"key": key, "status": status, "logged_at": now}
 
 
 def _entry_values(entry, plural, singular):
@@ -1212,10 +1235,29 @@ def _devtools_owner_trust(port, launched_pid="", launcher="", force=False):
     now = time.time()
     if not force and _PORT_OWNER_CACHE["port"] == int(port) and now < _PORT_OWNER_CACHE["expires"]:
         return _PORT_OWNER_CACHE["value"]
+    if hasattr(_PORT_OWNER_QUERY, "value"):
+        del _PORT_OWNER_QUERY.value
     entries = _port_owner_entries(port)
+    query = getattr(_PORT_OWNER_QUERY, "value", None)
+    if not isinstance(query, dict):
+        query = {
+            "status": "unavailable",
+            "duration_ms": 0,
+            "backend": "win32",
+            "error": "Owner query diagnostics unavailable",
+            "diagnostic_build": "issue52-3",
+            "port": int(port),
+        }
     remembered_launcher = _LAST_LAUNCH.get("launcher", "")
     registered_launchers = []
-    if not launcher and not remembered_launcher:
+    # Store identity is already exact; launcher discovery must not add CIM work
+    # to the recurring owner check or run when the native query failed.
+    needs_desktop_launcher = any(
+        _is_allowed_amazon_exe(path) and not _is_exact_amazon_package_exe(path)
+        for entry in entries
+        for path in _entry_values(entry, "Paths", "Path")
+    )
+    if needs_desktop_launcher and not launcher and not remembered_launcher:
         registered_launchers = [
             candidate.get("value", "")
             for candidate in _launcher_candidates()
@@ -1227,6 +1269,7 @@ def _devtools_owner_trust(port, launched_pid="", launcher="", force=False):
         result = {"trusted": True, "status": "verified", "detail": "Enhanced metadata listener belongs to Amazon Music", "pids": [_clean(entry.get("Pid")) for entry in entries]}
     else:
         result = {"trusted": False, "status": "rejected", "detail": "The selected enhanced metadata port is owned by a non-Amazon process", "pids": [_clean(entry.get("Pid")) for entry in entries]}
+    result["query"] = dict(query)
     _PORT_OWNER_CACHE.update({"port": int(port), "expires": now + 10, "value": result})
     return result
 
