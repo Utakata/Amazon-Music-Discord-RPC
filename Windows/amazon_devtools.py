@@ -1163,7 +1163,7 @@ def _port_owner_entries(port):
         "duration_ms": 0,
         "backend": "win32",
         "error": "Windows did not complete the owner query",
-        "diagnostic_build": "issue52-2",
+        "diagnostic_build": "issue52-3",
         "port": int(port),
     }
     _PORT_OWNER_QUERY.value = query
@@ -1202,7 +1202,7 @@ def _log_owner_query(query):
             recovery = previous and previous.get("status") not in {"success", "no_listener"} and status == "success"
             label = "recovered" if recovery else status
             detail = f"{query.get('stage', '')}: {error}" if error else query.get("stage", "")
-            print(f"[Metadata owner] build=issue52-2 backend=win32 port={query.get('port')} status={label} duration_ms={query.get('duration_ms')}" + (f" detail={_sanitize_owner_error(detail)}" if detail else ""))
+            print(f"[Metadata owner] build=issue52-3 backend=win32 port={query.get('port')} status={label} duration_ms={query.get('duration_ms')}" + (f" detail={_sanitize_owner_error(detail)}" if detail else ""))
             _PORT_OWNER_LOG_STATE[query.get("port")] = {"key": key, "status": status, "logged_at": now}
 
 
@@ -1245,7 +1245,7 @@ def _devtools_owner_trust(port, launched_pid="", launcher="", force=False):
             "duration_ms": 0,
             "backend": "win32",
             "error": "Owner query diagnostics unavailable",
-            "diagnostic_build": "issue52-2",
+            "diagnostic_build": "issue52-3",
             "port": int(port),
         }
     remembered_launcher = _LAST_LAUNCH.get("launcher", "")

@@ -33,7 +33,7 @@ def test_native_failure_preserves_reason_and_stays_untrusted(monkeypatch, status
     assert result["status"] == "unavailable"
     assert result["query"]["status"] == status
     assert result["query"]["backend"] == "win32"
-    assert result["query"]["diagnostic_build"] == "issue52-2"
+    assert result["query"]["diagnostic_build"] == "issue52-3"
     if code is not None:
         assert result["query"]["windows_error_code"] == code
 
@@ -86,7 +86,7 @@ def test_native_failure_logging_is_bounded_and_reports_recovery(monkeypatch, cap
     amazon_devtools._port_owner_entries(52856)
     first = capsys.readouterr().out
     assert first.count("[Metadata owner]") == 1
-    assert "build=issue52-2 backend=win32" in first
+    assert "build=issue52-3 backend=win32" in first
     assert "private" not in first
     assert len(amazon_devtools._PORT_OWNER_QUERY.value["error"]) <= 240
 
