@@ -7,7 +7,9 @@ on:
     paths:
       - .github/workflows/metadata-owner-diagnostic.yml
       - Windows/amazon_devtools.py
+      - Windows/windows_listener_owner.py
       - Windows/tests/test_owner_diagnostics.py
+      - Windows/tests/test_windows_listener_owner.py
       - docs/issue-52-diagnostic.md
   workflow_dispatch:
 
@@ -37,7 +39,7 @@ jobs:
         run: python -m pip install --require-hashes --only-binary=winsdk -r Windows/requirements-release.lock
 
       - name: Validate owner diagnostics
-        run: python -m pytest Windows/tests/test_amazon_devtools.py Windows/tests/test_owner_diagnostics.py -q
+        run: python -m pytest Windows/tests/test_amazon_devtools.py Windows/tests/test_owner_diagnostics.py Windows/tests/test_windows_listener_owner.py -q
 
       - name: Install Inno Setup
         shell: pwsh
@@ -62,17 +64,17 @@ jobs:
         run: |
           $outputDir = Join-Path $env:GITHUB_WORKSPACE 'Windows/diagnostic_output'
           New-Item -ItemType Directory -Force -Path $outputDir | Out-Null
-          & $env:INNO_COMPILER "/O$outputDir" '/FAmazonMusicRPC_Setup_v5.0.3_issue52-diagnostic-1' Windows/installer.iss
+          & $env:INNO_COMPILER "/O$outputDir" '/FAmazonMusicRPC_Setup_v5.0.3_issue52-test-2' Windows/installer.iss
           if ($LASTEXITCODE -ne 0) {
             throw "Installer compilation failed: $LASTEXITCODE"
           }
-          $installerName = 'AmazonMusicRPC_Setup_v5.0.3_issue52-diagnostic-1.exe'
+          $installerName = 'AmazonMusicRPC_Setup_v5.0.3_issue52-test-2.exe'
           $installer = Join-Path $outputDir $installerName
           $hash = (Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant()
           Set-Content -LiteralPath "$installer.sha256" -Value "$hash  $installerName" -Encoding ascii
           Copy-Item -LiteralPath docs/issue-52-diagnostic.md -Destination (Join-Path $outputDir 'TEST-INSTRUCTIONS.md')
           [ordered]@{
-            diagnostic_build = 'issue52-1'
+            diagnostic_build = 'issue52-2'
             base_version = '5.0.3'
             commit = $env:GITHUB_SHA
             run_url = "https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
@@ -88,7 +90,7 @@ jobs:
         id: artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: AmazonMusicRPC-issue52-diagnostic-1-${{ github.run_id }}
+          name: AmazonMusicRPC-issue52-test-2-${{ github.run_id }}
           path: Windows/diagnostic_output/
           if-no-files-found: error
           retention-days: 30
@@ -100,4 +102,4 @@ jobs:
         run: |
           "## Issue 52 diagnostic installer" >> $env:GITHUB_STEP_SUMMARY
           "[Download installer, checksum, and test instructions]($env:ARTIFACT_URL)" >> $env:GITHUB_STEP_SUMMARY
-          "Base version: 5.0.3. Diagnostic ID: issue52-1. No GitHub release or updater publication is created." >> $env:GITHUB_STEP_SUMMARY
+          "Base version: 5.0.3. Test build: issue52-2. No GitHub release or updater publication is created." >> $env:GITHUB_STEP_SUMMARY

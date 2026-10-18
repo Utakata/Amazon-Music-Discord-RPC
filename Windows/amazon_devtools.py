@@ -20,6 +20,7 @@ import requests
 from config import load_config, normalize_amazon_music_link_region
 from amazon_domains import AMAZON_MUSIC_HOSTS, AMAZON_WEBAPP_HOSTS, is_amazon_webapp_url
 from launcher_diagnostics import format_launcher_failure, launcher_attempt_failure, launcher_candidate_label
+from windows_listener_owner import query_listener_owners
 
 
 APP_USER_MODEL_ID = "AmazonMobileLLC.AmazonMusic_kc6t79cpj4tp0!AmazonMobileLLC.AmazonMusic"
@@ -1157,156 +1158,28 @@ def _valid_target_websocket(target, port):
 
 def _port_owner_entries(port):
     started = time.monotonic()
-    timeout = 4
     query = {
-        "status": "launch_error",
+        "status": "api_error",
         "duration_ms": 0,
-        "timeout_seconds": timeout,
-        "exit_code": None,
-        "error": "PowerShell did not complete the owner query",
-        "diagnostic_build": "issue52-1",
+        "backend": "win32",
+        "error": "Windows did not complete the owner query",
+        "diagnostic_build": "issue52-2",
         "port": int(port),
     }
     _PORT_OWNER_QUERY.value = query
-
-    def finish(status, error="", stage="", category="", exit_code=None, pid=None, failure=None):
-        query.update({
-            "status": status,
-            "duration_ms": int((time.monotonic() - started) * 1000),
-            "exit_code": exit_code,
-            "error": _sanitize_owner_error(error),
-        })
-        if stage:
-            query["stage"] = stage
-        if category:
-            query["error_category"] = category
-        if pid:
-            query["listener_pid"] = _clean(pid)[:32]
-        if isinstance(failure, dict):
-            error_id = _sanitize_owner_error(failure.get("ErrorId", ""))[:120]
-            error_category = _sanitize_owner_error(failure.get("CategoryInfo", ""))[:80]
-            if error_id:
-                query["windows_error_id"] = error_id
-            if error_category:
-                query["windows_error_category"] = error_category
-            for source, target in (("HResult", "windows_hresult"), ("NativeErrorCode", "windows_native_error_code")):
-                value = failure.get(source)
-                if isinstance(value, (int, float)) and not isinstance(value, bool):
-                    query[target] = value
-        _log_owner_query(query)
-
-    script = f"""
-$items = @()
-$failure = $null
-function Get-OwnerQueryFailure($record, $stage) {{
-    $category = 'command_failure'
-    $recordCategory = [string]$record.CategoryInfo.Category
-    $errorId = [string]$record.FullyQualifiedErrorId
-    $hresult = $record.Exception.HResult
-    $nativeErrorCode = $record.Exception.NativeErrorCode
-    if ($recordCategory -in @('PermissionDenied', 'SecurityError') -or $hresult -in @(-2147217405, -2147024891) -or $nativeErrorCode -eq 2) {{
-        $category = 'access_denied'
-    }} elseif ($stage -eq 'listener_query' -and ($recordCategory -eq 'ObjectNotFound' -or $errorId -match 'NoMatching.*NetTCPConnection|NetTCPConnection.*NotFound')) {{
-        $category = 'no_listener'
-    }}
-    return [PSCustomObject]@{{ Stage = $stage; Category = $category; CategoryInfo = $recordCategory; ErrorId = $errorId; HResult = $hresult; NativeErrorCode = $nativeErrorCode; Error = $record.Exception.Message }}
-}}
-try {{
-    Get-NetTCPConnection -State Listen -LocalPort {int(port)} -ErrorAction Stop | ForEach-Object {{
-        $owner = $_.OwningProcess
-        $current = $owner
-        $names = @()
-        $paths = @()
-        $pids = @()
-        for ($depth = 0; $depth -lt 6 -and $current -gt 0; $depth++) {{
-            try {{
-                $process = Get-CimInstance Win32_Process -Filter "ProcessId=$current" -ErrorAction Stop
-            }} catch {{
-                $failure = Get-OwnerQueryFailure $_ 'process_query'
-                break
-            }}
-            if (-not $process) {{ break }}
-            $pids += $process.ProcessId
-            $names += $process.Name
-            $paths += $process.ExecutablePath
-            if ($process.ParentProcessId -eq $current) {{ break }}
-            $current = $process.ParentProcessId
-        }}
-        $items += [PSCustomObject]@{{
-            Pid = $owner
-            Pids = @($pids)
-            Names = @($names)
-            Paths = @($paths)
-        }}
-    }}
-}} catch {{
-    $failure = Get-OwnerQueryFailure $_ 'listener_query'
-}}
-[PSCustomObject]@{{ Ok = (-not $failure); Items = @($items); Failure = $failure }} | ConvertTo-Json -Compress -Depth 5
-"""
+    entries = []
     try:
-        completed = _run_powershell(script, timeout=timeout)
-    except subprocess.TimeoutExpired:
-        finish("timeout", f"PowerShell owner query timed out after {timeout} seconds", "powershell", "timeout")
-        return []
-    except PermissionError as exc:
-        finish("access_denied", str(exc), "powershell_launch", "access_denied")
-        return []
-    except OSError as exc:
-        finish("launch_error", str(exc), "powershell_launch", "os_error")
-        return []
+        result = query_listener_owners(int(port))
+        for key in ("status", "duration_ms", "stage", "windows_error_code"):
+            if key in result:
+                query[key] = result[key]
+        query["error"] = _sanitize_owner_error(result.get("error", ""))
+        if query["status"] == "success":
+            entries = result.get("entries", [])
     except Exception as exc:
-        finish("launch_error", str(exc), "powershell_launch", type(exc).__name__)
-        return []
-
-    if completed.returncode != 0:
-        detail = completed.stderr or completed.stdout or "PowerShell owner query returned a nonzero exit code"
-        finish("command_failure", detail, "powershell", "nonzero_exit", completed.returncode)
-        return []
-    output = (completed.stdout or "").strip()
-    if not output:
-        finish("empty_response", "PowerShell owner query returned no response", "response", "empty", completed.returncode)
-        return []
-    try:
-        envelope = json.loads(output)
-    except (TypeError, json.JSONDecodeError) as exc:
-        finish("malformed_response", str(exc), "response", "invalid_json", completed.returncode)
-        return []
-    if (
-        not isinstance(envelope, dict)
-        or type(envelope.get("Ok")) is not bool
-        or not isinstance(envelope.get("Items"), list)
-        or (envelope["Ok"] and envelope.get("Failure") is not None)
-        or (not envelope["Ok"] and not isinstance(envelope.get("Failure"), dict))
-    ):
-        finish("malformed_response", "PowerShell owner query returned an invalid response envelope", "response", "invalid_envelope", completed.returncode)
-        return []
-    failure = envelope.get("Failure")
-    if not envelope["Ok"]:
-        category = _clean(failure.get("Category"))
-        status = "access_denied" if category == "access_denied" else "no_listener" if category == "no_listener" else "command_failure"
-        finish(
-            status,
-            failure.get("Error", "PowerShell owner query failed"),
-            failure.get("Stage", "powershell"),
-            category or "command_failure",
-            completed.returncode,
-            failure=failure,
-        )
-        return [item for item in envelope["Items"] if isinstance(item, dict)]
-    entries = [item for item in envelope["Items"] if isinstance(item, dict)]
-    if not entries:
-        finish("no_listener", "No listening process was found for the metadata port", "listener_query", "no_listener", completed.returncode)
-        return []
-    listener_pid = entries[0].get("Pid")
-    complete = all(
-        _clean(entry.get("Pid")) and _entry_values(entry, "Pids", "Pid") and _entry_values(entry, "Paths", "Path")
-        for entry in entries
-    )
-    if not complete:
-        finish("listener_identity_incomplete", "Listener found, but process identity details were incomplete", "process_query", "incomplete_identity", completed.returncode, listener_pid)
-    else:
-        finish("success", "", "complete", "", completed.returncode, listener_pid)
+        query.update(status="api_error", stage="native_query", error=_sanitize_owner_error(exc))
+    query["duration_ms"] = round((time.monotonic() - started) * 1000, 3)
+    _log_owner_query(query)
     return entries
 
 
@@ -1329,7 +1202,7 @@ def _log_owner_query(query):
             recovery = previous and previous.get("status") not in {"success", "no_listener"} and status == "success"
             label = "recovered" if recovery else status
             detail = f"{query.get('stage', '')}: {error}" if error else query.get("stage", "")
-            print(f"[Metadata owner] build=issue52-1 port={query.get('port')} status={label} duration_ms={query.get('duration_ms')}" + (f" detail={_sanitize_owner_error(detail)}" if detail else ""))
+            print(f"[Metadata owner] build=issue52-2 backend=win32 port={query.get('port')} status={label} duration_ms={query.get('duration_ms')}" + (f" detail={_sanitize_owner_error(detail)}" if detail else ""))
             _PORT_OWNER_LOG_STATE[query.get("port")] = {"key": key, "status": status, "logged_at": now}
 
 
@@ -1370,15 +1243,21 @@ def _devtools_owner_trust(port, launched_pid="", launcher="", force=False):
         query = {
             "status": "unavailable",
             "duration_ms": 0,
-            "timeout_seconds": 4,
-            "exit_code": None,
+            "backend": "win32",
             "error": "Owner query diagnostics unavailable",
-            "diagnostic_build": "issue52-1",
+            "diagnostic_build": "issue52-2",
             "port": int(port),
         }
     remembered_launcher = _LAST_LAUNCH.get("launcher", "")
     registered_launchers = []
-    if not launcher and not remembered_launcher:
+    # Store identity is already exact; launcher discovery must not add CIM work
+    # to the recurring owner check or run when the native query failed.
+    needs_desktop_launcher = any(
+        _is_allowed_amazon_exe(path) and not _is_exact_amazon_package_exe(path)
+        for entry in entries
+        for path in _entry_values(entry, "Paths", "Path")
+    )
+    if needs_desktop_launcher and not launcher and not remembered_launcher:
         registered_launchers = [
             candidate.get("value", "")
             for candidate in _launcher_candidates()
