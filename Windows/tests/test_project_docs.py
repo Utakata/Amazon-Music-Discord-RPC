@@ -2,6 +2,10 @@
 
 from pathlib import Path
 
+from packaging.requirements import Requirement
+from packaging.utils import canonicalize_name
+from packaging.version import Version
+
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -100,7 +104,12 @@ def test_official_release_workflow_keeps_trust_guards():
     assert "attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8" in workflow
     assert "upx=False" in spec
     assert "strip=False" in spec
-    assert "cryptography==50.0.0" in lock
+    crypto_pin = next(
+        Requirement(line.rstrip(" \\"))
+        for line in lock.splitlines()
+        if line.startswith("cryptography==")
+    )
+    assert Version(next(iter(crypto_pin.specifier)).version) >= Version("50.0.2")
     assert "cryptography==49.0.0" not in lock
     assert "pip==26.2.1" in lock
     assert "pip==26.1.2" not in lock
@@ -111,6 +120,26 @@ def test_official_release_workflow_keeps_trust_guards():
     assert "WINDOWS_SIGNING" not in workflow
     assert "signtool" not in workflow.lower()
     assert "--expected-pillow 12.3.0" in workflow
+
+
+def test_release_lock_matches_all_declared_dependency_pins():
+    lock = (ROOT / "Windows/requirements-release.lock").read_text(encoding="utf-8")
+    locked = {
+        canonicalize_name(requirement.name): requirement
+        for line in lock.splitlines()
+        if line and not line[0].isspace() and not line.startswith(("#", "-"))
+        for requirement in [Requirement(line.rstrip(" \\"))]
+    }
+    for filename in ("requirements.txt", "requirements-dev.txt", "requirements-build.txt"):
+        for line in (ROOT / "Windows" / filename).read_text(encoding="utf-8").splitlines():
+            if not line.strip() or line.lstrip().startswith(("#", "-")):
+                continue
+            requirement = Requirement(line)
+            name = canonicalize_name(requirement.name)
+            assert name in locked, f"{filename}: {name} missing from release lock"
+            assert locked[name].specifier == requirement.specifier, (
+                f"{filename}: {requirement} does not match {locked[name]}"
+            )
 
 
 def test_pytest_enforces_measurable_coverage_floor():
