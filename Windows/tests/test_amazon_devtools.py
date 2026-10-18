@@ -7,6 +7,25 @@ from types import SimpleNamespace
 import amazon_devtools
 
 
+def test_powershell_json_uses_absolute_executable_without_path(monkeypatch):
+    monkeypatch.setenv("PATH", "")
+    executable = amazon_devtools._powershell_executable()
+    assert os.path.isabs(executable)
+    assert os.path.isfile(executable)
+    calls = []
+
+    def shell_run(command, **kwargs):
+        calls.append((command, kwargs))
+        return SimpleNamespace(returncode=0, stdout='{"AppID":"Test.Package!App"}', stderr="")
+
+    monkeypatch.setattr(amazon_devtools.subprocess, "run", shell_run)
+    assert amazon_devtools._powershell_json("test-script") == [{"AppID": "Test.Package!App"}]
+    command, options = calls[0]
+    assert command == [executable, "-NoProfile", "-Command", "test-script"]
+    assert options["timeout"] == 8
+    assert options["text"] is True
+
+
 def test_devtools_payload_normalises_secondary_time_pause_and_link_region():
     payload = amazon_devtools._normalise_track_payload(
         {

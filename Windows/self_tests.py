@@ -985,10 +985,20 @@ def run_self_tests(log_dir, diagnostics_path):
         except ValueError:
             unsafe_override_rejected = True
         package_failure = _attempt_failure({"method": "auto-aumid", "value": "Missing.Package!App"}, 'Package was not found. 0x80073CF1')
+        from types import SimpleNamespace
+        from unittest.mock import patch
         old_path = os.environ.get("PATH")
         os.environ["PATH"] = ""
         try:
-            ps_json = _powershell_json("[PSCustomObject]@{Name='Amazon Music';AppID='Test.Package!App'} | ConvertTo-Json -Compress")
+            # Check command construction and parsing without timing a live shell.
+            with patch("amazon_devtools.subprocess.run") as shell_run:
+                shell_run.return_value = SimpleNamespace(
+                    returncode=0,
+                    stdout='{"Name":"Amazon Music","AppID":"Test.Package!App"}',
+                    stderr="",
+                )
+                ps_json = _powershell_json("[PSCustomObject]@{Name='Amazon Music';AppID='Test.Package!App'} | ConvertTo-Json -Compress")
+                ps_command = shell_run.call_args.args[0]
         finally:
             if old_path is None:
                 os.environ.pop("PATH", None)
@@ -1012,6 +1022,9 @@ def run_self_tests(log_dir, diagnostics_path):
             and "--remote-debugging-port={port}" in inspect.getsource(_launch_exe)
             and "Launcher path must point to an existing local Amazon Music .exe" in inspect.getsource(_launch_exe)
             and (os.path.isabs(powershell_path) or powershell_path.lower() == "powershell.exe")
+            and ps_command[0] == powershell_path
+            and os.path.isabs(ps_command[0])
+            and ps_command[1:3] == ["-NoProfile", "-Command"]
             and ps_json and ps_json[0].get("AppID") == "Test.Package!App"
             and '["powershell"' not in inspect.getsource(_launch_aumid)
         )
