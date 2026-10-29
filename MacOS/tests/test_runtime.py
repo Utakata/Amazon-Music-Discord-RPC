@@ -172,7 +172,7 @@ def test_pause_state_uses_pause_asset_and_respects_show_paused():
         settings(show_paused=True), devtools=track(playback_status="paused")
     )
     runtime.tick()
-    assert rpcs[0].updates[-1]["small_text"] == "Paused"
+    assert rpcs[0].updates[-1]["small_text"] == "一時停止中"
     assert "pause_icon.png" in rpcs[0].updates[-1]["small_image"]
 
     hidden_runtime, hidden_rpcs, _, _, _, _ = build_runtime(
@@ -214,8 +214,8 @@ def test_private_session_blocks_presence_and_scrobbling():
     assert rpcs[0].updates == []
     assert lastfm[0].now_playing == []
     assert lastfm[0].scrobbles == []
-    assert snapshot["track"]["title"] == "Hidden by privacy controls"
-    assert snapshot["privacy"]["reason"] == "Private session enabled"
+    assert snapshot["track"]["title"] == "プライバシーコントロールにより非表示"
+    assert snapshot["privacy"]["reason"] == "プライベートセッションが有効です"
     assert snapshot["raw_track"] == {}
     assert snapshot["album_art_url"] == ""
     assert snapshot["track_link"] == ""
@@ -375,7 +375,7 @@ def test_enabling_private_session_immediately_clears_diagnostic_metadata(monkeyp
 
     runtime.set_private_session(True)
     snapshot = runtime.snapshot()
-    assert snapshot["track"]["title"] == "Hidden by privacy controls"
+    assert snapshot["track"]["title"] == "プライバシーコントロールにより非表示"
     assert snapshot["raw_track"] == {}
     assert snapshot["album_art_url"] == ""
     assert snapshot["track_link"] == ""

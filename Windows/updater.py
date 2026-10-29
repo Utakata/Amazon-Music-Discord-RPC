@@ -449,14 +449,14 @@ def prompt_for_update(update, defer_until_exit=False):
     expected_sha256 = _normalise_sha256(update.expected_sha256)
     message = f"A new version (v{update.version}) is available."
     if update.changelog:
-        message += f"\n\nWhat's new:\n{update.changelog}"
-    message += f"\n\nRelease page:\n{release_url}"
+        message += f"\n\n新機能:\n{update.changelog}"
+    message += f"\n\nリリースページ:\n{release_url}"
     if expected_sha256:
-        message += "\n\nThe installer SHA256 hash will be verified after download."
+        message += "\n\nインストーラーのSHA256ハッシュはダウンロード後に検証されます。"
     else:
-        message += "\n\nNo SHA256 hash was found in the release assets or release notes. For safety, automatic download is disabled. Open the release page and review it manually."
-    message += "\n\nOpen the release page?"
-    result = ctypes.windll.user32.MessageBoxW(0, message, "Amazon Music RPC — Update Available", 0x04 | (0x20 if expected_sha256 else 0x30) | 0x40000)
+        message += "\n\nリリースアセットまたはリリースノートにSHA256ハッシュが見つかりませんでした。安全のため、自動ダウンロードは無効になっています。リリースページを開いて手動で確認してください。"
+    message += "\n\nリリースページを開きますか？"
+    result = ctypes.windll.user32.MessageBoxW(0, message, "Amazon Music RPC — アップデートあり", 0x04 | (0x20 if expected_sha256 else 0x30) | 0x40000)
     if result != 6:
         return None
     webbrowser.open(release_url)
@@ -465,9 +465,9 @@ def prompt_for_update(update, defer_until_exit=False):
     try:
         downloaded = download_installer(update.installer_url, expected_sha256)
     except Exception as error:
-        ctypes.windll.user32.MessageBoxW(0, f"Could not download or verify the update:\n\n{error}", "Amazon Music RPC — Update Failed", 0x10 | 0x40000)
+        ctypes.windll.user32.MessageBoxW(0, f"アップデートのダウンロードまたは検証ができませんでした:\n\n{error}", "Amazon Music RPC — アップデート失敗", 0x10 | 0x40000)
         return None
-    run_result = ctypes.windll.user32.MessageBoxW(0, "Installer downloaded.\n\nSHA256 verified.\n\nRun the installer now?", "Amazon Music RPC — Run Installer", 0x04 | 0x20 | 0x40000)
+    run_result = ctypes.windll.user32.MessageBoxW(0, "インストーラーのダウンロードが完了しました。\n\nSHA256ハッシュが検証されました。\n\n今すぐインストーラーを実行しますか？", "Amazon Music RPC — インストーラーの実行", 0x04 | 0x20 | 0x40000)
     if run_result != 6:
         shutil.rmtree(os.path.dirname(downloaded.path), ignore_errors=True)
         return None

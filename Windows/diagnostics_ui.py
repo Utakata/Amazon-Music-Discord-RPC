@@ -98,7 +98,7 @@ def _notification_access():
         name = str(access).split(".")[-1].replace("_", " ").title()
         return {"value": name or "Not requested", "state": "warn"}
     except Exception as e:
-        return {"value": "Unavailable", "state": "bad", "detail": str(e)}
+        return {"value": "利用不可", "state": "bad", "detail": str(e)}
 
 
 def _age_text(updated_at):
@@ -118,11 +118,11 @@ def _age_text(updated_at):
 def _scrobble_label(status):
     return {
         "active": "Active",
-        "disabled": "Off",
+        "disabled": "オフ",
         "not_authenticated": "Needs auth",
         "missing_token": "Missing token",
         "error": "Error",
-    }.get(status, "Unknown")
+    }.get(status, "不明")
 
 
 def _amazify_state(state):
@@ -250,7 +250,7 @@ def _build_cards(state, config, access):
     elif discord_status == "retrying":
         cards.append({"label": "Discord", "value": "Retrying", "detail": "Waiting for Discord IPC", "state": "warn"})
     else:
-        cards.append({"label": "Discord", "value": "Unknown", "detail": "No recent connection signal", "state": "muted"})
+        cards.append({"label": "Discord", "value": "不明", "detail": "最近の接続シグナルはありません", "state": "muted"})
 
     if track:
         status = track.get("status") or "unknown"
@@ -267,7 +267,7 @@ def _build_cards(state, config, access):
         detail = access.get("detail") or "Notification fallback enabled"
         cards.append({"label": "Notifications", "value": access["value"], "detail": detail, "state": access["state"]})
     else:
-        cards.append({"label": "Notifications", "value": "Off", "detail": "Notification fallback disabled", "state": "muted"})
+        cards.append({"label": "Notifications", "value": "オフ", "detail": "Notification fallback disabled", "state": "muted"})
 
     amazon_devtools = state.get("amazon_devtools") or {}
     if config.get("amazon_devtools_enabled"):
@@ -286,12 +286,12 @@ def _build_cards(state, config, access):
             detail = amazon_devtools.get("detail") or "Amazon Music is restarting for metadata"
             card_state = "warn"
         elif devtools_status in ("error", "unavailable"):
-            value = "Unavailable"
+            value = "利用不可"
             detail = amazon_devtools.get("detail") or "Amazon Music metadata failed"
             card_state = "bad"
         else:
-            value = "Waiting"
-            detail = amazon_devtools.get("detail") or "Waiting for Amazon Music metadata"
+            value = "待機中"
+            detail = amazon_devtools.get("detail") or "Amazon Musicのメタデータを待機中"
             card_state = "warn"
         if devtools_warning:
             detail = devtools_warning
@@ -299,34 +299,34 @@ def _build_cards(state, config, access):
                 card_state = "warn"
         if amazon_devtools.get("method"):
             detail = f"{detail} ({amazon_devtools.get('method')})"
-        cards.append({"label": "Amazon Metadata", "value": value, "detail": detail, "state": card_state})
+        cards.append({"label": "Amazonメタデータ", "value": value, "detail": detail, "state": card_state})
     else:
-        cards.append({"label": "Amazon Metadata", "value": "Off", "detail": "Enhanced metadata disabled", "state": "muted"})
+        cards.append({"label": "Amazonメタデータ", "value": "オフ", "detail": "拡張メタデータは無効です", "state": "muted"})
 
     cards.append(_amazify_card(state))
 
     privacy = state.get("privacy") or {}
     if privacy.get("hidden"):
-        cards.append({"label": "Privacy", "value": "Hiding", "detail": privacy.get("reason") or "Current activity hidden", "state": "warn"})
+        cards.append({"label": "プライバシー", "value": "非表示", "detail": privacy.get("reason") or "現在のアクティビティは非表示です", "state": "warn"})
     elif config.get("privacy_private_session"):
-        cards.append({"label": "Privacy", "value": "Private", "detail": "Private session enabled", "state": "warn"})
+        cards.append({"label": "プライバシー", "value": "プライベート", "detail": "プライベートセッションが有効です", "state": "warn"})
     elif config.get("privacy_blocked_keywords"):
-        cards.append({"label": "Privacy", "value": "Enabled", "detail": "Keyword filters active", "state": "good"})
+        cards.append({"label": "プライバシー", "value": "有効", "detail": "キーワードフィルターがアクティブです", "state": "good"})
     else:
-        cards.append({"label": "Privacy", "value": "Standard", "detail": "No privacy filters active", "state": "muted"})
+        cards.append({"label": "プライバシー", "value": "標準", "detail": "No privacy filters active", "state": "muted"})
 
     if state.get("album_art_url"):
         cards.append({"label": "Artwork", "value": "Found", "detail": state.get("album_name") or "Album art ready", "state": "good"})
     elif track:
         cards.append({"label": "Artwork", "value": "Missing", "detail": "No artwork URL for current track", "state": "warn"})
     else:
-        cards.append({"label": "Artwork", "value": "Waiting", "detail": "No current track", "state": "muted"})
+        cards.append({"label": "Artwork", "value": "待機中", "detail": "現在再生中の曲はありません", "state": "muted"})
 
     lastfm = scrobbling.get("lastfm", "disabled")
     listenbrainz = scrobbling.get("listenbrainz", "disabled")
     enabled = [s for s in (lastfm, listenbrainz) if s != "disabled"]
     if not enabled:
-        cards.append({"label": "Scrobbling", "value": "Off", "detail": "Last.fm and ListenBrainz disabled", "state": "muted"})
+        cards.append({"label": "Scrobbling", "value": "オフ", "detail": "Last.fm and ListenBrainz disabled", "state": "muted"})
     elif all(s == "active" for s in enabled):
         cards.append({"label": "Scrobbling", "value": "Active", "detail": f"Last.fm {_scrobble_label(lastfm)}, ListenBrainz {_scrobble_label(listenbrainz)}", "state": "good"})
     else:
@@ -365,10 +365,10 @@ def _build_cards(state, config, access):
         storage_detail = f"{len(fallback_keys)} value(s) retained in protected fallback storage"
         storage_state = "warn"
     else:
-        storage_value = "Unavailable"
+        storage_value = "利用不可"
         storage_detail = "Windows secure credential storage is unavailable"
         storage_state = "bad"
-    cards.append({"label": "Secret Storage", "value": storage_value, "detail": storage_detail, "state": storage_state})
+    cards.append({"label": "シークレットストレージ", "value": storage_value, "detail": storage_detail, "state": storage_state})
 
     return cards
 
@@ -712,16 +712,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="header">
     <img src="data:image/png;base64,{icon_b64}" alt="icon">
     <div class="title">
-      <h1>Diagnostics</h1>
+      <h1>診断</h1>
       <p>Amazon Music RPC v{version}</p>
     </div>
     <div class="actions">
-      <button onclick="refreshNow()">Refresh</button>
-      <button onclick="exportReport()">Export Report</button>
-      <button onclick="openTests()">Tests</button>
-      <button onclick="pywebview.api.open_report_issue()">Report Issue</button>
-      <button id="pauseBtn" onclick="togglePause()">Pause Log</button>
-      <button onclick="pywebview.api.close_window()">Close</button>
+      <button onclick="refreshNow()">更新</button>
+      <button onclick="exportReport()">レポートをエクスポート</button>
+      <button onclick="openテスト()">テスト</button>
+      <button onclick="pywebview.api.open_report_issue()">問題を報告</button>
+      <button id="pauseBtn" onclick="togglePause()">ログを一時停止</button>
+      <button onclick="pywebview.api.close_window()">閉じる</button>
     </div>
   </div>
 
@@ -729,8 +729,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <div class="track-row">
     <div>
-      <div class="track-title" id="trackTitle">No current track</div>
-      <div class="track-meta" id="trackMeta">Waiting for Amazon Music</div>
+      <div class="track-title" id="trackTitle">現在再生中の曲はありません</div>
+      <div class="track-meta" id="trackMeta">Amazon Musicを待機中</div>
     </div>
     <div class="paths" id="paths"></div>
   </div>
@@ -738,21 +738,21 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="main">
     <div class="tests-card" id="testsCard">
       <div class="tests-head">
-        <span class="tests-title">Development Tests</span>
-        <button class="primary-action" onclick="runTests()">Run Tests</button>
-        <button onclick="hideTests()">Hide</button>
+        <span class="tests-title">Development テスト</span>
+        <button class="primary-action" onclick="runテスト()">Run テスト</button>
+        <button onclick="hideテスト()">隠す</button>
       </div>
       <div class="dev-actions">
-        <button onclick="resetIntroFlag()">Reset Intro</button>
-        <button onclick="resetTestsWarning()">Reset Tests Warning</button>
-        <button onclick="clearPrivateSession()">Clear Private Session</button>
-        <div class="dev-action-note" id="devActionStatus">Use these only while testing local behavior.</div>
+        <button onclick="resetIntroFlag()">イントロをリセット</button>
+        <button onclick="resetテストWarning()">Reset テスト Warning</button>
+        <button onclick="clearPrivateSession()">プライベートセッションをクリア</button>
+        <div class="dev-action-note" id="devActionStatus">これらはローカルの動作をテストする場合にのみ使用してください。</div>
       </div>
       <div class="tests-results" id="testsResults"></div>
     </div>
     <div class="log-card">
       <div class="log-head">
-        <span class="log-title">Console</span>
+        <span class="log-title">コンソール</span>
         <select id="logSelect" onchange="changeLogFile()"></select>
         <span class="log-status" id="logStatus">Loading</span>
       </div>
@@ -763,15 +763,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
 <div class="modal-overlay" id="testsWarning">
   <div class="modal">
-    <div class="modal-title">Development Area</div>
-    <div class="modal-copy">this is meant for development and should not be used by a normal user, only interact with this if you KNOW WHAT YOU ARE DOING</div>
+    <div class="modal-title">開発エリア</div>
+    <div class="modal-copy">これは開発用であり、一般ユーザーは使用しないでください。何をしようとしているか完全に理解している場合のみ操作してください。</div>
     <label class="modal-check">
-      <input type="checkbox" id="dontShowTestsWarning">
+      <input type="checkbox" id="dontShowテストWarning">
       <span>Don't say again</span>
     </label>
     <div class="modal-actions">
-      <button onclick="closeTestsWarning()">Cancel</button>
-      <button class="primary-action" onclick="acceptTestsWarning()">Continue</button>
+      <button onclick="closeテストWarning()">Cancel</button>
+      <button class="primary-action" onclick="acceptテストWarning()">続行</button>
     </div>
   </div>
 </div>
@@ -837,12 +837,12 @@ function renderSnapshot(data) {
   const artist = text(track.artist);
   const album = text(track.album);
   const status = text(track.status);
-  document.getElementById('trackTitle').textContent = title || 'No current track';
+  document.getElementById('trackTitle').textContent = title || '現在再生中の曲はありません';
   const parts = [];
   if (artist) parts.push(artist);
   if (album) parts.push(album);
   if (status) parts.push(status.charAt(0).toUpperCase() + status.slice(1));
-  document.getElementById('trackMeta').textContent = parts.join(' · ') || 'Waiting for Amazon Music';
+  document.getElementById('trackMeta').textContent = parts.join(' · ') || 'Amazon Musicを待機中';
   document.getElementById('paths').textContent = data.updated_at_text + '\\n' + data.log_path;
 }
 
@@ -887,7 +887,7 @@ function changeLogFile() {
 
 function togglePause() {
   logPaused = !logPaused;
-  document.getElementById('pauseBtn').textContent = logPaused ? 'Resume Log' : 'Pause Log';
+  document.getElementById('pauseBtn').textContent = logPaused ? 'Resume Log' : 'ログを一時停止';
 }
 
 function refreshNow() {
@@ -910,35 +910,35 @@ async function exportReport() {
   }
 }
 
-async function openTests() {
+async function openテスト() {
   const result = await pywebview.api.get_test_warning();
   if (result && result.dismissed) {
-    showTests();
+    showテスト();
     return;
   }
   document.getElementById('testsWarning').classList.add('visible');
 }
 
-function closeTestsWarning() {
+function closeテストWarning() {
   document.getElementById('testsWarning').classList.remove('visible');
 }
 
-async function acceptTestsWarning() {
-  if (document.getElementById('dontShowTestsWarning').checked) {
+async function acceptテストWarning() {
+  if (document.getElementById('dontShowテストWarning').checked) {
     await pywebview.api.dismiss_test_warning();
   }
-  closeTestsWarning();
-  showTests();
+  closeテストWarning();
+  showテスト();
 }
 
-function showTests() {
+function showテスト() {
   document.getElementById('testsCard').classList.add('visible');
   if (!document.getElementById('testsResults').children.length) {
-    runTests();
+    runテスト();
   }
 }
 
-function hideTests() {
+function hideテスト() {
   document.getElementById('testsCard').classList.remove('visible');
 }
 
@@ -952,9 +952,9 @@ async function resetIntroFlag() {
   setDevActionStatus('Setup wizard will show next time Settings opens.');
 }
 
-async function resetTestsWarning() {
+async function resetテストWarning() {
   await pywebview.api.set_config_flag('diagnostics_tests_warning_dismissed', false);
-  setDevActionStatus('Tests warning will show next time.');
+  setDevActionStatus('テスト warning will show next time.');
 }
 
 async function clearPrivateSession() {
@@ -963,7 +963,7 @@ async function clearPrivateSession() {
   refreshSnapshot();
 }
 
-async function runTests() {
+async function runテスト() {
   const root = document.getElementById('testsResults');
   root.textContent = 'Running...';
   const results = await pywebview.api.run_tests();

@@ -128,7 +128,7 @@ class TrackChoiceDialog(QDialog):
         *,
         search_query=None,
         page_size=5,
-        prompt="No artist found. Select the correct track:",
+        prompt="アーティストが見つかりませんでした。正しいトラックを選択してください:",
         remember=True,
         search_fn=None,
         icon_path=None,
@@ -137,7 +137,7 @@ class TrackChoiceDialog(QDialog):
         super().__init__(parent)
         self.setObjectName("pickerRoot")
         self.setStyleSheet(STYLE)
-        self.setWindowTitle("Amazon Music RPC — Choose track")
+        self.setWindowTitle("Amazon Music RPC — トラックの選択")
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         self.setMinimumWidth(570)
         self.setMaximumWidth(720)
@@ -313,7 +313,7 @@ class TrackChoiceDialog(QDialog):
         try:
             tracks = search_page(self.search_query, self.page_size, page, self.search_fn)
         except Exception as error:
-            self.status.setText(f"Search failed: {error}")
+            self.status.setText(f"検索に失敗しました: {error}")
             return
         finally:
             QApplication.restoreOverrideCursor()
@@ -333,7 +333,7 @@ class TrackChoiceDialog(QDialog):
         index = self.group.checkedId()
         choices = self.pages.get(self.current_page, [])
         if not 0 <= index < len(choices):
-            QMessageBox.information(self, "Choose a track", "Select a track first.")
+            QMessageBox.information(self, "トラックを選択", "先にトラックを選択してください。")
             return
         self.result_payload = {
             "index": self.current_page * self.page_size + index,
@@ -348,7 +348,7 @@ class TrackInputDialog(QDialog):
         super().__init__(parent)
         self.setObjectName("pickerRoot")
         self.setStyleSheet(STYLE)
-        self.setWindowTitle("Amazon Music RPC — Find track")
+        self.setWindowTitle("Amazon Music RPC — トラックを検索")
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         self.setMinimumWidth(460)
         _set_icon(self, icon_path)
@@ -386,26 +386,26 @@ class TrackInputDialog(QDialog):
     def _search(self):
         title = self.entry.text().strip()
         if not title:
-            self.status.setText("Enter a song title first.")
+            self.status.setText("先に曲のタイトルを入力してください。")
             return
         query = f"{title} {self.artist}".strip()
         QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
         try:
             tracks = search_page(query, 5, 0, self.search_fn)
         except Exception as error:
-            self.status.setText(f"Search failed: {error}")
+            self.status.setText(f"検索に失敗しました: {error}")
             return
         finally:
             QApplication.restoreOverrideCursor()
         if not tracks:
-            self.status.setText("No results found.")
+            self.status.setText("結果が見つかりませんでした。")
             return
         picker = TrackChoiceDialog(
             title,
             tracks,
             search_query=query,
             page_size=5,
-            prompt="Select the correct track:",
+            prompt="正しいトラックを選択してください:",
             remember=False,
             search_fn=self.search_fn,
             parent=self,
@@ -420,24 +420,24 @@ class WrongSongDialog(QDialog):
         super().__init__(parent)
         self.setObjectName("pickerRoot")
         self.setStyleSheet(STYLE)
-        self.setWindowTitle("Amazon Music RPC — Correct metadata")
+        self.setWindowTitle("Amazon Music RPC — メタデータの修正")
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         self.choice = ""
         _set_icon(self, icon_path)
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 22, 24, 20)
-        title = QLabel("Did we make a mistake?")
+        title = QLabel("メタデータが間違っていますか？")
         title.setStyleSheet("font-size: 16px; font-weight: 700;")
         title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(title)
         row = QHBoxLayout()
-        for label, choice in (("Wrong artist", "artist"), ("Wrong song", "title")):
+        for label, choice in (("間違ったアーティスト", "artist"), ("間違った曲", "title")):
             button = QPushButton(label)
             button.setProperty("primary", True)
             button.clicked.connect(lambda _checked=False, value=choice: self._pick(value))
             row.addWidget(button)
         layout.addLayout(row)
-        cancel = QPushButton("Cancel")
+        cancel = QPushButton("キャンセル")
         cancel.clicked.connect(self.reject)
         layout.addWidget(cancel)
 
@@ -453,7 +453,7 @@ class CorrectionDialog(QDialog):
         super().__init__(parent)
         self.setObjectName("pickerRoot")
         self.setStyleSheet(STYLE)
-        self.setWindowTitle("Amazon Music RPC — Correct this song")
+        self.setWindowTitle("Amazon Music RPC — この曲を修正")
         self.setMinimumWidth(560)
         self.setWindowFlag(Qt.WindowType.WindowStaysOnTopHint, True)
         _set_icon(self, icon_path)
@@ -463,12 +463,12 @@ class CorrectionDialog(QDialog):
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(24, 22, 24, 20)
-        title = QLabel("Correct the detected metadata")
+        title = QLabel("検出されたメタデータを修正する")
         title.setStyleSheet("font-size: 17px; font-weight: 700;")
         layout.addWidget(title)
         raw = QLabel(
-            f"Detected as {self.raw_track['title'] or 'unknown title'}"
-            f" — {self.raw_track['artist'] or 'unknown artist'}"
+            f"検出: {self.raw_track['title'] or 'タイトル不明'}"
+            f" — {self.raw_track['artist'] or 'アーティスト不明'}"
         )
         raw.setProperty("muted", True)
         raw.setWordWrap(True)
@@ -478,11 +478,11 @@ class CorrectionDialog(QDialog):
         form.setHorizontalSpacing(16)
         self.fields = {}
         for key, label in (
-            ("title", "Title"),
-            ("artist", "Artist"),
-            ("album", "Album"),
-            ("art_url", "Artwork URL"),
-            ("track_link", "Song URL"),
+            ("title", "タイトル"),
+            ("artist", "アーティスト"),
+            ("album", "アルバム"),
+            ("art_url", "アートワークのURL"),
+            ("track_link", "曲のURL"),
         ):
             edit = QLineEdit(current[key])
             self.fields[key] = edit
@@ -490,11 +490,11 @@ class CorrectionDialog(QDialog):
         self.duration = QDoubleSpinBox()
         self.duration.setRange(0, 86400)
         self.duration.setDecimals(1)
-        self.duration.setSuffix(" seconds")
+        self.duration.setSuffix(" 秒")
         self.duration.setValue(current["duration"])
-        form.addRow("Duration", self.duration)
+        form.addRow("再生時間", self.duration)
         layout.addLayout(form)
-        self.remember = QCheckBox("Remember this correction for the detected title and artist")
+        self.remember = QCheckBox("検出されたタイトルとアーティストにこの修正を記憶する")
         self.remember.setChecked(True)
         layout.addWidget(self.remember)
 
@@ -502,7 +502,7 @@ class CorrectionDialog(QDialog):
             QDialogButtonBox.StandardButton.Cancel | QDialogButtonBox.StandardButton.Save
         )
         save = buttons.button(QDialogButtonBox.StandardButton.Save)
-        save.setText("Use correction")
+        save.setText("修正を適用")
         save.setProperty("primary", True)
         buttons.rejected.connect(self.reject)
         buttons.accepted.connect(self._accept)
@@ -512,7 +512,7 @@ class CorrectionDialog(QDialog):
         corrected = {key: edit.text().strip() for key, edit in self.fields.items()}
         corrected["duration"] = float(self.duration.value())
         if not corrected["title"]:
-            QMessageBox.warning(self, "Missing title", "A corrected title is required.")
+            QMessageBox.warning(self, "タイトルが不足しています", "修正されたタイトルが必要です。")
             return
         self.result_payload = {
             "accepted": True,
@@ -529,7 +529,7 @@ class LogConsoleWindow(QWidget):
         super().__init__()
         self.setObjectName("pickerRoot")
         self.setStyleSheet(STYLE)
-        self.setWindowTitle("Amazon Music RPC — Console")
+        self.setWindowTitle("Amazon Music RPC — コンソール")
         self.resize(760, 460)
         _set_icon(self, icon_path)
         self.path = str(log_file_path)
@@ -564,7 +564,7 @@ def show_choice_picker(
     choices,
     search_query=None,
     page_size=5,
-    prompt="No artist found. Select the correct track:",
+    prompt="アーティストが見つかりませんでした。正しいトラックを選択してください:",
     remember=True,
     search_fn=None,
     icon_path=None,

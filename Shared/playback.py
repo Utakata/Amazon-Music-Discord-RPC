@@ -112,11 +112,11 @@ def privacy_keywords(config_or_value):
 def privacy_match(config, title="", artist="", album=""):
     config = config if isinstance(config, Mapping) else {}
     if config.get("privacy_private_session"):
-        return "Private session enabled"
+        return "プライベートセッションが有効です"
     haystack = normalised_text(f"{title} {artist} {album}")
     for keyword in privacy_keywords(config):
         if keyword in haystack:
-            return f"Matched privacy keyword: {keyword}"
+            return f"一致したプライバシーキーワード: {keyword}"
     return ""
 
 
