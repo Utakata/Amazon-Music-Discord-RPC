@@ -67,7 +67,7 @@ def signature(snapshot):
 
 def icon_title(snapshot):
     if snapshot.get("private"):
-        return "Amazon Music RPC - Private"
+        return "Amazon Music RPC - プライベート"
     if snapshot.get("title"):
         title = snapshot.get("title")
         artist = snapshot.get("artist")

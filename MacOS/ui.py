@@ -456,7 +456,7 @@ class SettingsWindow(QMainWindow):
         outer.setSpacing(10)
         header = QHBoxLayout()
         titles = QVBoxLayout()
-        heading = QLabel("Settings")
+        heading = QLabel("設定")
         heading.setProperty("heading", True)
         titles.addWidget(heading)
         subtitle = QLabel("Control presence, metadata, privacy, and scrobbling.")
@@ -482,7 +482,7 @@ class SettingsWindow(QMainWindow):
         self.status.setProperty("muted", True)
         self.status.setWordWrap(True)
         footer.addWidget(self.status, 1)
-        diagnostics = QPushButton("Diagnostics")
+        diagnostics = QPushButton("診断")
         diagnostics.clicked.connect(self.coordinator.show_diagnostics)
         footer.addWidget(diagnostics)
         cancel = QPushButton("Reload")
@@ -858,7 +858,7 @@ class SettingsWindow(QMainWindow):
             self.coordinator.runtime_reload(saved)
             self.settings = saved
         except Exception as error:
-            QMessageBox.warning(self, "Could not save settings", str(error))
+            QMessageBox.warning(self, "設定を保存できませんでした", str(error))
             self.status.setText(f"Save failed: {error}")
             return False
         self.status.setText("Settings saved. Runtime reloaded.")
@@ -966,9 +966,9 @@ class SettingsWindow(QMainWindow):
             payload = settings_export_payload(config.load_config(), self.include_secrets.isChecked())
             _write_private_json(path, payload)
         except Exception as error:
-            QMessageBox.warning(self, "Export failed", str(error))
+            QMessageBox.warning(self, "エクスポートに失敗しました", str(error))
             return
-        self.status.setText(f"Exported to {path}")
+        self.status.setText(f"{path} にエクスポートされました")
 
     def import_settings(self):
         path, _ = QFileDialog.getOpenFileName(
@@ -986,7 +986,7 @@ class SettingsWindow(QMainWindow):
             self.coordinator.runtime_reload(saved)
             self.load_settings(saved)
         except Exception as error:
-            QMessageBox.warning(self, "Import failed", str(error))
+            QMessageBox.warning(self, "インポートに失敗しました", str(error))
             return
         self.status.setText(f"Imported settings from {path}")
 
@@ -1061,7 +1061,7 @@ class DiagnosticsWindow(QMainWindow):
         layout.setContentsMargins(22, 18, 22, 18)
         header = QHBoxLayout()
         titles = QVBoxLayout()
-        title = QLabel("Diagnostics")
+        title = QLabel("診断")
         title.setProperty("heading", True)
         titles.addWidget(title)
         subtitle = QLabel("Live state and redacted troubleshooting data")
@@ -1095,7 +1095,7 @@ class DiagnosticsWindow(QMainWindow):
             self.cards_layout.addWidget(card, index // 3, index % 3)
         overview_layout.addLayout(self.cards_layout)
         track = _Card("Current track")
-        self.track_label = QLabel("Waiting for Amazon Music")
+        self.track_label = QLabel("Amazon Musicを待機中")
         self.track_label.setStyleSheet("font-size: 16px; font-weight: 700;")
         self.track_detail = QLabel("")
         self.track_detail.setProperty("muted", True)
@@ -1177,7 +1177,7 @@ class DiagnosticsWindow(QMainWindow):
         for card, row in zip(self.cards, snapshot_rows(self.snapshot)):
             card.apply(*row)
         track = self.snapshot.get("track") or {}
-        self.track_label.setText(track.get("title") or "Waiting for Amazon Music")
+        self.track_label.setText(track.get("title") or "Amazon Musicを待機中")
         parts = [track.get("artist"), track.get("album"), self.snapshot.get("time")]
         parts = [str(part) for part in parts if part]
         self.track_detail.setText(" • ".join(parts) or str(self.snapshot.get("source_detail") or "No active track"))
@@ -1227,9 +1227,9 @@ class DiagnosticsWindow(QMainWindow):
         try:
             _write_private_json(path, self.report())
         except OSError as error:
-            QMessageBox.warning(self, "Export failed", str(error))
+            QMessageBox.warning(self, "エクスポートに失敗しました", str(error))
             return
-        self.status.setText(f"Exported redacted diagnostics to {path}")
+        self.status.setText(f"編集済み診断を {path} にエクスポートしました")
 
     def closeEvent(self, event: QCloseEvent):
         try:
@@ -1365,9 +1365,9 @@ class MacApplicationUI(QObject):
             )
             if self.diagnostics_window:
                 detail = (
-                    "Correction remembered for this detected song."
+                    "この検出された曲に対する修正が記憶されました。"
                     if remember
-                    else "Correction applied for this app session."
+                    else "このアプリセッションに対する修正が適用されました。"
                 )
                 self.diagnostics_window.status.setText(detail)
         return result
@@ -1383,9 +1383,9 @@ class MacApplicationUI(QObject):
         )
         if self.diagnostics_window:
             self.diagnostics_window.status.setText(
-                "Correction remembered for this detected song."
+                "この検出された曲に対する修正が記憶されました。"
                 if remember
-                else "Correction applied for this app session."
+                else "このアプリセッションに対する修正が適用されました。"
             )
         return result
 
@@ -1421,8 +1421,8 @@ class MacApplicationUI(QObject):
             if not choices:
                 QMessageBox.information(
                     parent,
-                    "No matches",
-                    "No matching songs were found. You can still use the manual correction fields in Diagnostics.",
+                    "一致するものがありません",
+                    "一致する曲は見つかりませんでした。引き続き「診断」の画面から手動修正フィールドを使用できます。",
                 )
                 return
             result = show_choice_picker(
@@ -1445,7 +1445,7 @@ class MacApplicationUI(QObject):
         self.run_background(
             search,
             choose,
-            lambda error: QMessageBox.warning(parent, "Search failed", error),
+            lambda error: QMessageBox.warning(parent, "検索に失敗しました", error),
         )
         return {"pending": True}
 
@@ -1463,7 +1463,7 @@ class MacApplicationUI(QObject):
             if on_error:
                 on_error(error)
             else:
-                QMessageBox.warning(self.settings_window, "Operation failed", error)
+                QMessageBox.warning(self.settings_window, "操作に失敗しました", error)
 
         worker.signals.succeeded.connect(finished)
         worker.signals.failed.connect(failed)
@@ -1483,12 +1483,12 @@ class MacApplicationUI(QObject):
             payload = response.json()
             if payload.get("valid"):
                 return {"valid": True, "user_name": payload.get("user_name", "")}
-            return {"valid": False, "error": "Invalid token. Check it and try again."}
+            return {"valid": False, "error": "無効なトークンです。確認してもう一度お試しください。"}
 
         return self.run_background(
             task,
             callback,
-            lambda error: callback({"valid": False, "error": f"Could not validate: {error}"}) if callback else None,
+            lambda error: callback({"valid": False, "error": f"検証できませんでした: {error}"}) if callback else None,
         )
 
     def lastfm_auth(self, callback=None):
@@ -1512,7 +1512,7 @@ class MacApplicationUI(QObject):
 
     def lastfm_complete(self, callback=None):
         if not self._lastfm_generator or not self._lastfm_auth_url:
-            result = {"ok": False, "error": "Start authentication in the browser first."}
+            result = {"ok": False, "error": "先にブラウザで認証を開始してください。"}
             if callback:
                 callback(result)
             return None
@@ -1561,18 +1561,18 @@ class MacApplicationUI(QObject):
             if not available:
                 QMessageBox.information(
                     parent,
-                    "Software Update",
-                    f"{config.APP_DISPLAY_NAME} {config.APP_VERSION} is up to date."
+                    "ソフトウェア・アップデート",
+                    f"{config.APP_DISPLAY_NAME} {config.APP_VERSION} は最新です。"
                     if not error
-                    else f"Could not check for updates:\n{error}",
+                    else f"アップデートを確認できませんでした:\n{error}",
                 )
                 return
             version = str(getattr(update, "version", "new version") or "new version")
             changelog = str(getattr(update, "changelog", "") or "")[:1200]
             choice = QMessageBox.question(
                 parent,
-                "Update available",
-                f"Amazon Music RPC {version} is available.\n\n{changelog}\n\nDownload and open the DMG?",
+                "アップデートが利用可能です",
+                f"Amazon Music RPC {version} が利用可能です。\n\n{changelog}\n\nDMGをダウンロードして開きますか？",
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             )
             if choice != QMessageBox.StandardButton.Yes:
@@ -1592,7 +1592,7 @@ class MacApplicationUI(QObject):
                     return
             self.run_background(
                 lambda: download_and_open_dmg(update),
-                lambda _result: QMessageBox.information(parent, "Update downloaded", "The update DMG has been opened."),
+                lambda _result: QMessageBox.information(parent, "アップデートがダウンロードされました", "アップデートのDMGファイルが開かれました。"),
             )
 
         return self.run_background(task, done)

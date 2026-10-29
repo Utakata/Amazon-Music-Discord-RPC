@@ -17,11 +17,11 @@ def test_metadata_source_summary_labels():
         {"notification_enrichment_enabled": True},
     )
     smtc = metadata_source_summary({"track": {"status": "playing", "title": "Song"}}, {})
-    assert private["label"] == "Private"
-    assert amazon["label"] == "Amazon Metadata"
-    assert paused["label"] == "Paused"
-    assert notify["label"] == "Notification Fallback"
-    assert smtc["label"] == "SMTC Fallback"
+    assert private["label"] == "プライベート"
+    assert amazon["label"] == "Amazonメタデータ"
+    assert paused["label"] == "一時停止中"
+    assert notify["label"] == "通知(フォールバック)"
+    assert smtc["label"] == "SMTC(フォールバック)"
 
 
 def test_tray_snapshot_payload_and_geometry():
@@ -60,11 +60,11 @@ def test_tray_snapshot_payload_and_geometry():
     top_left = qt_tray_ui.drawer_geometry(0, 0, (0, 0, 320, 500))
     assert snapshot["rpc"] == "On"
     assert snapshot["discord"] == "Connected"
-    assert snapshot["source"] == "Amazon Metadata"
+    assert snapshot["source"] == "Amazonメタデータ"
     assert snapshot["devtools_status"] == "Found"
     assert snapshot["time"] == "1:05 / 5:15"
     assert main._tray_icon_title(snapshot) == "Rusty - Tyler, The Creator"
-    assert payload["status"] == "Running"
+    assert payload["status"] == "実行中"
     assert payload["title"] == "Rusty"
     assert "Album: Wolf" in payload["meta"]
     assert any(row[0] == "DevTools" and row[1] == "Found" for row in payload["diagnostics"])

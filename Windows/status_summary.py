@@ -10,37 +10,37 @@ def metadata_source_summary(state, config):
 
     if privacy.get("hidden") or config.get("privacy_private_session"):
         return {
-            "label": "Private",
-            "detail": privacy.get("reason") or "Private session enabled",
+            "label": "プライベート",
+            "detail": privacy.get("reason") or "プライベートセッションが有効です",
             "state": "warn",
         }
 
     track_status = str(track.get("status") or "").lower()
     if track_status == "paused":
         return {
-            "label": "Paused",
-            "detail": track.get("title") or "Playback is paused",
+            "label": "一時停止中",
+            "detail": track.get("title") or "再生は一時停止中です",
             "state": "warn",
         }
 
     if config.get("amazon_devtools_enabled") and amazon.get("status") == "found":
         return {
-            "label": "Amazon Metadata",
-            "detail": amazon.get("title") or track.get("title") or "Using Amazon Music metadata",
+            "label": "Amazonメタデータ",
+            "detail": amazon.get("title") or track.get("title") or "Amazon Musicのメタデータを使用中",
             "state": "good",
         }
 
     if notification and config.get("notification_enrichment_enabled"):
         return {
-            "label": "Notification Fallback",
-            "detail": notification.get("title") or "Using Amazon Music notifications",
+            "label": "通知(フォールバック)",
+            "detail": notification.get("title") or "Amazon Musicの通知を使用中",
             "state": "good",
         }
 
     if track:
         return {
-            "label": "SMTC Fallback",
-            "detail": track.get("title") or "Using Windows media session data",
+            "label": "SMTC(フォールバック)",
+            "detail": track.get("title") or "Windowsのメディアセッションデータを使用中",
             "state": "good" if track_status == "playing" else "muted",
         }
 
@@ -48,18 +48,18 @@ def metadata_source_summary(state, config):
         devtools_status = str(amazon.get("status") or "waiting").lower()
         if devtools_status in ("error", "unavailable"):
             return {
-                "label": "Unavailable",
-                "detail": amazon.get("detail") or "Amazon Music metadata is unavailable",
+                "label": "利用不可",
+                "detail": amazon.get("detail") or "Amazon Musicのメタデータが利用できません",
                 "state": "bad",
             }
         return {
-            "label": "Waiting",
-            "detail": amazon.get("detail") or "Waiting for Amazon Music metadata",
+            "label": "待機中",
+            "detail": amazon.get("detail") or "Amazon Musicのメタデータを待機中",
             "state": "warn",
         }
 
     return {
-        "label": "Waiting",
-        "detail": "Waiting for Amazon Music",
+        "label": "待機中",
+        "detail": "Amazon Musicを待機中",
         "state": "muted",
     }

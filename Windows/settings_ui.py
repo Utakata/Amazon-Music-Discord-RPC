@@ -43,7 +43,7 @@ def _save_window_size(width, height):
             }
         )
     except Exception as e:
-        print(f"[Settings] Could not save window size: {e}")
+        print(f"[設定] Could not save window size: {e}")
 
 
 def _frozen_child_env():
@@ -254,7 +254,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   textarea:hover { border-color: #5865f2; }
   textarea:focus { border-color: #5865f2; box-shadow: 0 0 0 1px #5865f250; }
 
-  /* Custom ID field */
+  /* カスタム ID field */
   .custom-id-group {
     margin-top: 10px;
     overflow: hidden;
@@ -832,19 +832,19 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="wizard-progress" id="wizardProgress"></div>
     <div id="wizardBody"></div>
     <div class="wizard-actions">
-      <button class="update-btn" id="wizardBack" type="button" onclick="wizardBack()">Back</button>
-      <button class="save-btn" id="wizardNext" type="button" onclick="wizardNext()">Next</button>
+      <button class="update-btn" id="wizardBack" type="button" onclick="wizardBack()">戻る</button>
+      <button class="save-btn" id="wizardNext" type="button" onclick="wizardNext()">次へ</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="metadataWarning">
   <div class="modal">
-    <div class="modal-title">Amazon Metadata</div>
-    <div class="modal-copy">Disabling enhanced Amazon metadata is not recommended. It is the most reliable source for track info, artwork, pause state, and timing. If you disable it, Amazon Music RPC will fall back to SMTC and notifications, which can be less accurate.</div>
+    <div class="modal-title">Amazonメタデータ</div>
+    <div class="modal-copy">拡張Amazonメタデータを無効にすることは推奨されません。これはトラック情報、アートワーク、一時停止状態、および再生時間の最も信頼できるソースです。無効にすると、Amazon Music RPCはSMTCおよび通知にフォールバックしますが、精度が低下する可能性があります。</div>
     <div class="modal-actions">
-      <button onclick="closeMetadataWarning()">Keep Enabled</button>
-      <button class="primary-action" onclick="acceptMetadataWarning()">Disable Anyway</button>
+      <button onclick="closeMetadataWarning()">有効のままにする</button>
+      <button class="primary-action" onclick="acceptMetadataWarning()">とにかく無効にする</button>
     </div>
   </div>
 </div>
@@ -864,7 +864,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <img src="data:image/png;base64,{icon_b64}" alt="icon" id="appIcon">
   <div class="header-text">
     <h1>Amazon Music RPC</h1>
-    <p>Discord Rich Presence for Amazon Music</p>
+    <p>Amazon Music用 Discord Rich Presence</p>
   </div>
   <span class="version-badge">v{version}</span>
 </div>
@@ -872,17 +872,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <div class="source-strip muted" id="sourceStrip">
   <div class="source-dot"></div>
   <div>
-    <div class="source-title" id="sourceTitle">Waiting</div>
-    <div class="source-detail" id="sourceDetail">Waiting for Amazon Music</div>
+    <div class="source-title" id="sourceTitle">待機中</div>
+    <div class="source-detail" id="sourceDetail">Amazon Musicを待機中</div>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-title">Amazon Metadata</div>
+  <div class="card-title">Amazonメタデータ</div>
   <div class="row">
     <div class="row-labels">
-      <span class="row-label">Enhanced Amazon metadata</span>
-      <div class="row-desc">Use Amazon Music's local playback metadata for better track info</div>
+      <span class="row-label">拡張Amazonメタデータ</span>
+      <div class="row-desc">より良いトラック情報のためにAmazon Musicのローカル再生メタデータを使用します</div>
     </div>
     <label class="toggle">
       <input type="checkbox" id="amazonDevtoolsEnabled" aria-label="Enable enhanced Amazon metadata" onchange="onAmazonMetadataToggle()">
@@ -902,7 +902,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       <div class="toggle-knob"></div>
     </label>
   </div>
-  <button class="update-btn" type="button" onclick="launchAmazonDevtools()">Launch Amazon Music Now</button>
+  <button class="update-btn" type="button" onclick="launchAmazonDevtools()">今すぐAmazon Musicを起動</button>
   <button class="update-btn" id="amazonLauncherBtn" type="button" onclick="toggleAmazonLauncher()">Add Start Menu Launcher</button>
   <div style="padding-top:12px;">
     <div class="row-label">Advanced Amazon Music launcher</div>
@@ -944,7 +944,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="lastfm-fields" id="amazonRegionFields">
     <div class="row">
       <div class="row-labels">
-        <span class="row-label">Amazon Music region</span>
+        <span class="row-label">Amazon Musicのリージョン</span>
         <div class="row-desc">Controls the region used for Amazon listen buttons</div>
       </div>
       <select id="amazonMusicLinkRegion" aria-label="Amazon Music link region">
@@ -969,11 +969,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <div class="row">
     <div class="row-labels">
-      <span class="row-label">Private session</span>
-      <div class="row-desc">Hide Discord presence and skip protected activity</div>
+      <span class="row-label">プライベートセッション</span>
+      <div class="row-desc">Discordプレゼンスを非表示 and skip protected activity</div>
     </div>
     <label class="toggle">
-      <input type="checkbox" id="privacyPrivateSession" aria-label="Private session">
+      <input type="checkbox" id="privacyPrivateSession" aria-label="プライベートセッション">
       <div class="toggle-track"></div>
       <div class="toggle-knob"></div>
     </label>
@@ -1001,14 +1001,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <div class="card">
-  <div class="card-title">Game Mode</div>
+  <div class="card-title">Game モード</div>
   <div class="row">
     <div class="row-labels">
-      <span class="row-label">Enable Game Mode</span>
+      <span class="row-label">Enable Game モード</span>
       <div class="row-desc">Suppress automatic wrong-song picker popups while active</div>
     </div>
     <label class="toggle">
-      <input type="checkbox" id="gameModeEnabled" aria-label="Enable Game Mode">
+      <input type="checkbox" id="gameモードEnabled" aria-label="Enable Game モード">
       <div class="toggle-track"></div>
       <div class="toggle-knob"></div>
     </label>
@@ -1016,16 +1016,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="separator"></div>
   <div style="padding:6px 0;">
     <div class="row-label">Auto-enable for apps</div>
-    <div class="row-desc" style="margin-bottom:8px;">Comma-separated process names that enable Game Mode while running</div>
-    <textarea id="gameModeProcesses" placeholder="game.exe, anothergame.exe"></textarea>
+    <div class="row-desc" style="margin-bottom:8px;">Comma-separated process names that enable Game モード while running</div>
+    <textarea id="gameモードProcesses" placeholder="game.exe, anothergame.exe"></textarea>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-title">Custom Album Art</div>
+  <div class="card-title">カスタム アルバム Art</div>
   <div class="row-desc" style="margin-bottom:10px;">Match album names or aliases to a custom cover image URL</div>
-  <div class="custom-album-list" id="customAlbumList"></div>
-  <button class="update-btn" type="button" onclick="addCustomAlbum()">Add Album Art</button>
+  <div class="custom-album-list" id="customアルバムList"></div>
+  <button class="update-btn" type="button" onclick="addカスタムアルバム()">Add アルバム Art</button>
 </div>
 
 <div class="card">
@@ -1046,11 +1046,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <div class="row">
     <div class="row-labels">
-      <span class="row-label">Start minimized</span>
+      <span class="row-label">最小化して起動</span>
       <div class="row-desc">Start hidden in the system tray</div>
     </div>
     <label class="toggle">
-      <input type="checkbox" id="startMinimized" aria-label="Start minimized">
+      <input type="checkbox" id="startMinimized" aria-label="最小化して起動">
       <div class="toggle-track"></div>
       <div class="toggle-knob"></div>
     </label>
@@ -1072,24 +1072,24 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   <div class="row">
     <div class="row-labels">
-      <span class="row-label">Discord status display</span>
-      <div class="row-desc">Choose what follows “Listening to” on your Discord profile</div>
+      <span class="row-label">Discordのステータス表示</span>
+      <div class="row-desc">Discordプロフィールで「〜を聴取中」の後に続く内容を選択します</div>
     </div>
-    <select id="discordStatusDisplay" aria-label="Discord status display">
-      <option value="artist">Artist</option>
-      <option value="album">Album</option>
-      <option value="track">Track</option>
+    <select id="discordStatusDisplay" aria-label="Discordのステータス表示">
+      <option value="artist">アーティスト</option>
+      <option value="album">アルバム</option>
+      <option value="track">トラック</option>
       <option value="application">Amazon Music</option>
     </select>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-title">Fallback Metadata</div>
+  <div class="card-title">フォールバック・メタデータ</div>
   <div class="row">
     <div class="row-labels">
-      <span class="row-label">Notification fallback</span>
-      <div class="row-desc">Read Amazon Music notifications locally only when enhanced metadata is unavailable</div>
+      <span class="row-label">通知フォールバック</span>
+      <div class="row-desc">拡張メタデータが利用できない場合のみ、ローカルでAmazon Musicの通知を読み取ります</div>
     </div>
     <label class="toggle">
       <input type="checkbox" id="notifEnrichEnabled" aria-label="Enable notification fallback" onchange="onNotifEnrichToggle()">
@@ -1099,31 +1099,31 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   </div>
   <div class="lastfm-fields" id="notifEnrichInfo">
     <div style="margin-top:6px; font-size:11px; color:#bbb; line-height:1.5;">
-      <strong style="color:#e4e4e4;">Requirements:</strong><br>
-      &bull; Notifications must be enabled in Amazon Music settings<br>
-      &bull; Amazon Music must be <strong>minimized</strong> for notifications to appear
-      <br><br><strong style="color:#e4e4e4;">Privacy:</strong><br>
-      &bull; Reads Windows notifications locally<br>
-      &bull; Only Amazon Music notification text is used for fallback metadata
+      <strong style="color:#e4e4e4;">要件:</strong><br>
+      &bull; Amazon Musicの設定で通知を有効にする必要があります<br>
+      &bull; 通知を表示するには、Amazon Musicを<strong>最小化</strong>する必要があります
+      <br><br><strong style="color:#e4e4e4;">プライバシー:</strong><br>
+      &bull; ローカルのWindows通知を読み取ります<br>
+      &bull; Amazon Musicの通知テキストのみがフォールバック・メタデータに使用されます
     </div>
     <div style="margin-top:8px;">
       <a href="#" onclick="pywebview.api.open_url('https://eripum9.github.io/Amazon-Music-Discord-RPC/wiki/notification-setup/'); return false;"
          style="color:#5865f2; font-size:12px; text-decoration:none; font-weight:600;">
-        Learn how to enable it &rarr;
+        有効化する方法について &rarr;
       </a>
     </div>
   </div>
 </div>
 
 <div class="card">
-  <div class="card-title">Network &amp; Updates</div>
+  <div class="card-title">ネットワークとアップデート</div>
   <div class="row">
     <div class="row-labels">
-      <span class="row-label">Automatic update checks</span>
-      <div class="row-desc">Check GitHub for a newer release when the app starts</div>
+      <span class="row-label">自動アップデートチェック</span>
+      <div class="row-desc">アプリ起動時にGitHubで新しいリリースを確認します</div>
     </div>
     <label class="toggle">
-      <input type="checkbox" id="automaticUpdateChecks" aria-label="Automatic update checks">
+      <input type="checkbox" id="automaticUpdateChecks" aria-label="自動アップデートチェック">
       <div class="toggle-track"></div>
       <div class="toggle-knob"></div>
     </label>
@@ -1131,11 +1131,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="separator"></div>
   <div class="row">
     <div class="row-labels">
-      <span class="row-label">Deezer lookup</span>
-      <div class="row-desc">Find fallback artwork, duration, and optional Deezer links</div>
+      <span class="row-label">Deezer 検索</span>
+      <div class="row-desc">フォールバックのアートワーク、再生時間、およびオプションのDeezerリンクを検索します</div>
     </div>
     <label class="toggle">
-      <input type="checkbox" id="deezerLookupEnabled" aria-label="Enable Deezer lookup">
+      <input type="checkbox" id="deezerLookupEnabled" aria-label="Enable Deezer 検索">
       <div class="toggle-track"></div>
       <div class="toggle-knob"></div>
     </label>
@@ -1143,31 +1143,31 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="separator"></div>
   <div class="row">
     <div class="row-labels">
-      <span class="row-label">iTunes artwork fallback</span>
-      <div class="row-desc">Try iTunes artwork only when the preferred lookup has no cover</div>
+      <span class="row-label">iTunes アートワークのフォールバック</span>
+      <div class="row-desc">優先検索でカバーアートが見つからない場合のみiTunesのアートワークを試行します</div>
     </div>
     <label class="toggle">
-      <input type="checkbox" id="itunesLookupEnabled" aria-label="Enable iTunes artwork fallback">
+      <input type="checkbox" id="itunesLookupEnabled" aria-label="Enable iTunes アートワークのフォールバック">
       <div class="toggle-track"></div>
       <div class="toggle-knob"></div>
     </label>
   </div>
-  <div class="row-desc" style="padding-top:10px;">Lookup requests contain track and artist search text. Recent request status is available in Diagnostics.</div>
+  <div class="row-desc" style="padding-top:10px;">検索リクエストには、トラックおよびアーティストの検索テキストが含まれます。最近のリクエスト状態は診断(Diagnostics)で確認できます。</div>
 </div>
 
 <div class="card">
   <div class="card-title">Discord Client ID</div>
   <div class="row">
-    <div class="row-labels"><span class="row-label">Mode</span></div>
-    <select id="idMode" aria-label="Client ID mode" onchange="onModeChange()">
-      <option value="default">Default</option>
-      <option value="custom">Custom</option>
+    <div class="row-labels"><span class="row-label">モード</span></div>
+    <select id="idモード" aria-label="Client ID mode" onchange="onモードChange()">
+      <option value="default">デフォルト</option>
+      <option value="custom">カスタム</option>
     </select>
   </div>
   <div class="custom-id-group" id="customIdGroup">
-    <label>Application ID</label>
-    <input type="text" id="clientId" placeholder="Enter your Discord Application ID">
-    <div class="error-msg" id="idError">Please enter a valid Client ID or switch back to Default.</div>
+    <label>アプリケーションID (Client ID)</label>
+    <input type="text" id="clientId" placeholder="Enter your Discord アプリケーションID (Client ID)">
+    <div class="error-msg" id="idError">Please enter a valid Client ID or switch back to デフォルト.</div>
   </div>
 </div>
 
@@ -1175,8 +1175,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="card-title">Last.fm</div>
   <div class="row">
     <div class="row-labels">
-      <span class="row-label">Enable Last.fm Scrobbling</span>
-      <div class="row-desc">Scrobble tracks and send now playing updates</div>
+      <span class="row-label">Last.fm Scrobblingを有効にする</span>
+      <div class="row-desc">トラックをスクロブルし、「再生中」の更新を送信します</div>
     </div>
     <label class="toggle">
       <input type="checkbox" id="lastfmEnabled" aria-label="Enable Last.fm scrobbling" onchange="onLastfmToggle()">
@@ -1186,8 +1186,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   </div>
   <div class="lastfm-fields" id="lastfmFields">
     <div style="margin-top: 4px;">
-      <button class="auth-btn" id="authBtn" onclick="lastfmAuth()">Authenticate with Last.fm</button>
-      <button class="auth-btn" id="completeAuthBtn" onclick="lastfmCompleteAuth()" style="display:none; margin-left:6px; background:#43b581;">Complete Authentication</button>
+      <button class="auth-btn" id="authBtn" onclick="lastfmAuth()">Last.fmで認証する</button>
+      <button class="auth-btn" id="completeAuthBtn" onclick="lastfmCompleteAuth()" style="display:none; margin-left:6px; background:#43b581;">認証を完了する</button>
     </div>
     <div class="lastfm-status" id="lastfmStatus" style="display:none;"></div>
   </div>
@@ -1197,8 +1197,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <div class="card-title">ListenBrainz</div>
   <div class="row">
     <div class="row-labels">
-      <span class="row-label">Enable ListenBrainz Scrobbling</span>
-      <div class="row-desc">Scrobble tracks and send now playing updates</div>
+      <span class="row-label">ListenBrainz Scrobblingを有効にする</span>
+      <div class="row-desc">トラックをスクロブルし、「再生中」の更新を送信します</div>
     </div>
     <label class="toggle">
       <input type="checkbox" id="lbEnabled" aria-label="Enable ListenBrainz scrobbling" onchange="onLbToggle()">
@@ -1223,39 +1223,39 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </div>
 
 <div class="card">
-  <div class="card-title">Scrobbling Tokens</div>
+  <div class="card-title">Scrobblingトークン</div>
   <div class="row-labels">
-    <span class="row-label">Clear saved tokens</span>
-    <div class="row-desc">Disconnect Last.fm and remove the saved ListenBrainz token from this device</div>
+    <span class="row-label">保存されたトークンをクリア</span>
+    <div class="row-desc">このデバイスからLast.fmを切断し、保存されているListenBrainzトークンを削除します</div>
   </div>
-  <button class="update-btn" id="clearTokensBtn" type="button" onclick="clearScrobblingTokens()">Clear Scrobbling Tokens</button>
+  <button class="update-btn" id="clearTokensBtn" type="button" onclick="clearScrobblingTokens()">Clear Scrobblingトークン</button>
 </div>
 
 <div class="card">
-  <div class="card-title">Settings Backup</div>
+  <div class="card-title">設定のバックアップ</div>
   <div class="row-labels">
-    <span class="row-label">Export or import settings</span>
-    <div class="row-desc">Move your app setup between installs or keep a local backup</div>
+    <span class="row-label">設定のエクスポート/インポート</span>
+    <div class="row-desc">設定を他のインストールに移動したり、ローカルバックアップを保持します</div>
   </div>
   <label class="backup-check">
     <input type="checkbox" id="includeTokens">
-    <span>Include scrobbling tokens</span>
+    <span>Scrobblingのトークンを含める</span>
   </label>
   <div class="button-row">
-    <button class="update-btn" type="button" onclick="exportSettings()">Export Settings</button>
-    <button class="update-btn" type="button" onclick="importSettings()">Import Settings</button>
+    <button class="update-btn" type="button" onclick="exportSettings()">設定をエクスポート</button>
+    <button class="update-btn" type="button" onclick="importSettings()">設定をインポート</button>
   </div>
 </div>
 
-<button class="update-btn" id="updateBtn" onclick="checkForUpdates()">↑ Check for Updates</button>
-<button class="update-btn" id="diagBtn" onclick="pywebview.api.open_diagnostics()">Open Diagnostics</button>
-<button class="update-btn" type="button" onclick="openSetupWizard()">Run Setup Wizard</button>
-<button class="update-btn" onclick="pywebview.api.open_url('https://github.com/eripum9/Amazon-Music-Discord-RPC/issues')">Report Issue</button>
+<button class="update-btn" id="updateBtn" onclick="checkForUpdates()">↑ アップデートを確認</button>
+<button class="update-btn" id="diagBtn" onclick="pywebview.api.open_diagnostics()">診断を開く</button>
+<button class="update-btn" type="button" onclick="openSetupWizard()">セットアップウィザードを実行</button>
+<button class="update-btn" onclick="pywebview.api.open_url('https://github.com/eripum9/Amazon-Music-Discord-RPC/issues')">問題を報告</button>
 <div class="update-status" id="updateStatus"></div>
 
 <script>
   const BOOTSTRAP_CONFIG = {config_json};
-  let customAlbums = [];
+  let customアルバムs = [];
   let amazonLauncherInstalled = false;
   let applyingConfig = false;
   let autoApplyAttached = false;
@@ -1287,7 +1287,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   function collectSettingsData() {
-    const mode = document.getElementById('idMode').value;
+    const mode = document.getElementById('idモード').value;
     return {
       use_custom: mode === 'custom',
       client_id: document.getElementById('clientId').value.trim(),
@@ -1298,9 +1298,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       privacy_private_session: document.getElementById('privacyPrivateSession').checked,
       privacy_disable_scrobbling: document.getElementById('privacyDisableScrobbling').checked,
       privacy_blocked_keywords: document.getElementById('privacyBlockedKeywords').value.trim(),
-      game_mode_enabled: document.getElementById('gameModeEnabled').checked,
-      game_mode_processes: document.getElementById('gameModeProcesses').value.trim(),
-      custom_albums: collectCustomAlbums(false),
+      game_mode_enabled: document.getElementById('gameモードEnabled').checked,
+      game_mode_processes: document.getElementById('gameモードProcesses').value.trim(),
+      custom_albums: collectカスタムアルバムs(false),
       song_link_enabled: document.getElementById('songLinkEnabled').checked,
       song_link_provider: document.getElementById('songLinkProvider').value,
       amazon_music_link_region: document.getElementById('amazonMusicLinkRegion').value,
@@ -1326,7 +1326,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   function validateSettings(showErrors) {
-    const mode = document.getElementById('idMode').value;
+    const mode = document.getElementById('idモード').value;
     const customId = document.getElementById('clientId').value.trim();
     if (mode === 'custom' && !customId) {
       if (showErrors) {
@@ -1336,7 +1336,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
     if (mode === 'custom' && (!/^\\d+$/.test(customId) || customId.length < 15)) {
       if (showErrors) {
-        document.getElementById('idError').textContent = 'Client ID must be numeric and at least 15 digits.';
+        document.getElementById('idError').textContent = 'Client ID は15桁以上の数字である必要があります。';
         document.getElementById('idError').style.display = 'block';
         document.getElementById('clientId').style.borderColor = '#f04747';
       }
@@ -1348,7 +1348,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   function queueAutoSave(delay) {
-    if (applyingConfig || !apiReady()) {
+    if (applyingConfig || !api準備完了()) {
       return;
     }
     clearTimeout(autoSaveTimer);
@@ -1407,7 +1407,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   async function syncExternalConfig() {
-    if (!apiReady() || applyingConfig || autoSaveTimer || userIsTyping() || isSetupWizardVisible()) {
+    if (!api準備完了() || applyingConfig || autoSaveTimer || userIsTyping() || isSetupWizardVisible()) {
       return;
     }
     try {
@@ -1421,9 +1421,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
   }
 
-  function onModeChange() {
+  function onモードChange() {
     const group = document.getElementById('customIdGroup');
-    const mode = document.getElementById('idMode').value;
+    const mode = document.getElementById('idモード').value;
     if (mode === 'custom') {
       group.classList.add('visible');
     } else {
@@ -1446,8 +1446,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     summary = summary || {};
     const strip = document.getElementById('sourceStrip');
     strip.className = 'source-strip ' + (summary.state || 'muted');
-    document.getElementById('sourceTitle').textContent = summary.label || 'Waiting';
-    document.getElementById('sourceDetail').textContent = summary.detail || 'Waiting for Amazon Music';
+    document.getElementById('sourceTitle').textContent = summary.label || '待機中';
+    document.getElementById('sourceDetail').textContent = summary.detail || 'Amazon Musicを待機中';
   }
 
   function isSetupWizardVisible() {
@@ -1458,51 +1458,51 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   function wizardSteps() {
     return [
       {
-        eyebrow: 'Step 1 of 8',
+        eyebrow: 'ステップ 1 / 8',
         title: 'Amazon Music RPC',
-        copy: 'Set up the important options once, then the app can keep running quietly from the tray.',
-        items: ['Spotify-style Discord Rich Presence for Amazon Music on Windows.', 'Shows song, artist, album art, timer, and pause state.', 'You can change everything later from Settings.']
+        copy: '重要なオプションを一度設定すれば、アプリはトレイから静かに実行され続けます。',
+        items: ['Spotify-style Amazon Music用 Discord Rich Presence on Windows.', '曲、アーティスト、アルバムアート、タイマー、および一時停止状態を表示します。', 'すべて後で「設定」から変更できます。']
       },
       {
-        eyebrow: 'Step 2 of 8',
-        title: 'Discord Presence',
-        copy: 'Choose how the app should appear on Discord.',
+        eyebrow: 'ステップ 2 / 8',
+        title: 'Discord プレゼンス',
+        copy: 'Discord上でアプリがどのように表示されるかを選択します。',
         kind: 'discord'
       },
       {
-        eyebrow: 'Step 3 of 8',
-        title: 'Amazon Metadata',
-        copy: 'Enhanced metadata is recommended. It gives the app more accurate track info, artwork, pause state, and timing by launching Amazon Music with a local metadata connection.',
+        eyebrow: 'ステップ 3 / 8',
+        title: 'Amazonメタデータ',
+        copy: '拡張メタデータが推奨されます。これにより、Amazon Musicをローカルメタデータ接続で起動し、より正確なトラック情報、アートワーク、一時停止状態、およびタイミングがアプリに提供されます。',
         kind: 'metadata'
       },
       {
-        eyebrow: 'Step 4 of 8',
-        title: 'Privacy Controls',
-        copy: 'Private session hides Discord presence. Keyword filters can hide matching tracks, artists, or albums.',
+        eyebrow: 'ステップ 4 / 8',
+        title: 'プライバシーコントロール',
+        copy: 'プライベートセッション hides Discord presence. キーワードフィルター can hide matching tracks, artists, or albums.',
         kind: 'privacy'
       },
       {
-        eyebrow: 'Step 5 of 8',
-        title: 'Listen Button',
-        copy: 'Choose the button Discord should show on your presence.',
+        eyebrow: 'ステップ 5 / 8',
+        title: '聴くボタン',
+        copy: 'Discordのプレゼンスに表示するボタンを選択してください。',
         kind: 'links'
       },
       {
-        eyebrow: 'Step 6 of 8',
+        eyebrow: 'ステップ 6 / 8',
         title: 'Scrobbling',
-        copy: 'Last.fm and ListenBrainz are optional. Tokens are stored in Windows Credential Manager, with a DPAPI-protected fallback if needed.',
+        copy: 'Last.fmとListenBrainzはオプションです。トークンはWindows資格情報マネージャーに保存され、必要に応じてDPAPIで保護されたフォールバックが使用されます。',
         kind: 'scrobbling'
       },
       {
-        eyebrow: 'Step 7 of 8',
-        title: 'Startup and Updates',
-        copy: 'Choose how the app should behave when Windows starts.',
+        eyebrow: 'ステップ 7 / 8',
+        title: '起動とアップデート',
+        copy: 'Windows起動時のアプリの動作を選択してください。',
         kind: 'startup'
       },
       {
-        eyebrow: 'Step 8 of 8',
-        title: 'Ready',
-        copy: 'Review the current source status, then finish setup.',
+        eyebrow: 'ステップ 8 / 8',
+        title: '準備完了',
+        copy: '現在のソース状態を確認し、セットアップを完了します。',
         kind: 'finish'
       }
     ];
@@ -1524,40 +1524,40 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const regions = ['com', 'de', 'co.uk', 'fr', 'it', 'es', 'co.jp', 'ca', 'com.au', 'com.br', 'com.mx'];
     if (step.kind === 'discord') {
       const paused = !!document.getElementById('showPaused').checked;
-      const custom = document.getElementById('idMode').value === 'custom';
+      const custom = document.getElementById('idモード').value === 'custom';
       return `<div class="wizard-panel">
         <div class="wizard-choice">
-          ${wizardChoice('Default app ID', !custom, "setWizardSelect('idMode', 'default')", 'Recommended')}
-          ${wizardChoice('Custom app ID', custom, "setWizardSelect('idMode', 'custom')", 'Advanced')}
+          ${wizardChoice('デフォルト app ID', !custom, "setWizardSelect('idモード', 'default')", '推奨')}
+          ${wizardChoice('カスタム app ID', custom, "setWizardSelect('idモード', 'custom')", 'Advanced')}
         </div>
         <div class="wizard-choice">
           ${wizardChoice('Show paused', paused, "setWizardToggle('showPaused', true)", 'Keep presence visible')}
           ${wizardChoice('Hide paused', !paused, "setWizardToggle('showPaused', false)", 'Only active playback')}
         </div>
-        <div class="wizard-mini">Discord must be open on this PC for Rich Presence to appear.</div>
+        <div class="wizard-mini">Rich Presenceを表示するには、このPCでDiscordを開いている必要があります。</div>
       </div>`;
     }
     if (step.kind === 'metadata') {
       const autoLaunch = !!document.getElementById('amazonDevtoolsAutoLaunch').checked;
       return `<div class="wizard-panel">
         <div class="wizard-choice">
-          ${wizardChoice('Enhanced metadata', wizardMetadataChoice, 'setWizardMetadata(true)', 'Recommended')}
-          ${wizardChoice('Fallback mode', !wizardMetadataChoice, 'setWizardMetadata(false)', 'SMTC and notifications')}
+          ${wizardChoice('Enhanced metadata', wizardMetadataChoice, 'setWizardMetadata(true)', '推奨')}
+          ${wizardChoice('Fallback mode', !wizardMetadataChoice, 'setWizardMetadata(false)', 'SMTCと通知')}
         </div>
         <div class="wizard-choice">
-          ${wizardChoice('Auto-restart on', autoLaunch, "setWizardToggle('amazonDevtoolsAutoLaunch', true)", 'Repair metadata when Amazon is already open')}
-          ${wizardChoice('Auto-restart off', !autoLaunch, "setWizardToggle('amazonDevtoolsAutoLaunch', false)", 'Manual launch only')}
+          ${wizardChoice('自動再起動: オン', autoLaunch, "setWizardToggle('amazonDevtoolsAutoLaunch', true)", 'Amazon Musicが既に開いている場合にメタデータを修復します')}
+          ${wizardChoice('自動再起動: オフ', !autoLaunch, "setWizardToggle('amazonDevtoolsAutoLaunch', false)", '手動起動のみ')}
         </div>
-        <button class="update-btn" type="button" onclick="launchAmazonDevtools()">Launch Amazon Music Now</button>
-        <div class="wizard-mini">Enhanced metadata currently works with the Microsoft Store Amazon Music app.</div>
+        <button class="update-btn" type="button" onclick="launchAmazonDevtools()">今すぐAmazon Musicを起動</button>
+        <div class="wizard-mini">現在、拡張メタデータはMicrosoft StoreのAmazon Musicアプリで機能します。</div>
       </div>`;
     }
     if (step.kind === 'privacy') {
       const keywords = document.getElementById('privacyBlockedKeywords').value;
       return `<div class="wizard-panel">
         <div class="wizard-choice">
-          ${wizardToggleButton('privacyPrivateSession', 'Private session', 'Hide Discord presence')}
-          ${wizardToggleButton('privacyDisableScrobbling', 'Pause scrobbling in private', 'Recommended')}
+          ${wizardToggleButton('privacyPrivateSession', 'プライベートセッション', 'Discordプレゼンスを非表示')}
+          ${wizardToggleButton('privacyDisableScrobbling', 'プライベート中はスクロブルを停止', '推奨')}
         </div>
         <label class="row-label">Blocked keywords</label>
         <input type="text" value="${escapeHtml(keywords)}" placeholder="Example: podcast, audiobook" oninput="setWizardText('privacyBlockedKeywords', this.value, false)">
@@ -1574,10 +1574,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           ${wizardChoice('Button off', !enabled, "setWizardToggle('songLinkEnabled', false)", 'Presence only')}
         </div>
         <div class="wizard-choice">
-          ${wizardChoice('Amazon Music', provider === 'amazon', "setWizardSelect('songLinkProvider', 'amazon')", 'Default')}
+          ${wizardChoice('Amazon Music', provider === 'amazon', "setWizardSelect('songLinkProvider', 'amazon')", 'デフォルト')}
           ${wizardChoice('Deezer', provider === 'deezer', "setWizardSelect('songLinkProvider', 'deezer')", 'Fallback lookup')}
         </div>
-        <label class="row-label">Amazon Music region</label>
+        <label class="row-label">Amazon Musicのリージョン</label>
         <select onchange="setWizardSelect('amazonMusicLinkRegion', this.value)">
           ${regions.map((item) => `<option value="${item}" ${region === item ? 'selected' : ''}>amazon.${item}</option>`).join('')}
         </select>
@@ -1586,20 +1586,20 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     if (step.kind === 'scrobbling') {
       return `<div class="wizard-panel">
         <div class="wizard-choice">
-          ${wizardToggleButton('lastfmEnabled', 'Last.fm', 'Enable scrobbling')}
-          ${wizardToggleButton('lbEnabled', 'ListenBrainz', 'Enable scrobbling')}
+          ${wizardToggleButton('lastfmEnabled', 'Last.fm', 'Scrobblingを有効にする')}
+          ${wizardToggleButton('lbEnabled', 'ListenBrainz', 'Scrobblingを有効にする')}
         </div>
-        <div class="wizard-mini">Authenticate Last.fm or paste your ListenBrainz token from the full settings page after setup.</div>
+        <div class="wizard-mini">セットアップ後、完全な設定ページからLast.fmを認証するかListenBrainzトークンを貼り付けてください。</div>
       </div>`;
     }
     if (step.kind === 'startup') {
       return `<div class="wizard-panel">
         <div class="wizard-choice">
-          ${wizardToggleButton('startOnStartup', 'Start with Windows', 'Tray app starts automatically')}
-          ${wizardToggleButton('startMinimized', 'Start minimized', 'Recommended for tray use')}
+          ${wizardToggleButton('startOnStartup', 'Windows起動時に実行', 'トレイアプリが自動的に起動します')}
+          ${wizardToggleButton('startMinimized', '最小化して起動', '推奨 for tray use')}
         </div>
         <div class="wizard-choice">
-          ${wizardToggleButton('automaticUpdateChecks', 'Automatic update checks', 'Check GitHub at startup')}
+          ${wizardToggleButton('automaticUpdateChecks', '自動アップデートチェック', 'Check GitHub at startup')}
           ${wizardToggleButton('notifEnrichEnabled', 'Notifications fallback', 'Use Amazon Music notifications')}
         </div>
       </div>`;
@@ -1607,10 +1607,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     if (step.kind === 'finish') {
       const summary = latestConfig.source_summary || {};
       return `<div class="wizard-status">
-        <div class="wizard-status-row"><strong>Metadata source</strong><span>${escapeHtml(summary.label || 'Waiting')}</span></div>
-        <div class="wizard-status-row"><strong>Source detail</strong><span>${escapeHtml(summary.detail || 'Waiting for Amazon Music')}</span></div>
+        <div class="wizard-status-row"><strong>Metadata source</strong><span>${escapeHtml(summary.label || '待機中')}</span></div>
+        <div class="wizard-status-row"><strong>Source detail</strong><span>${escapeHtml(summary.detail || 'Amazon Musicを待機中')}</span></div>
         <div class="wizard-status-row"><strong>Enhanced metadata</strong><span>${document.getElementById('amazonDevtoolsEnabled').checked ? 'Enabled' : 'Fallback mode'}</span></div>
-        <div class="wizard-status-row"><strong>Privacy</strong><span>${document.getElementById('privacyPrivateSession').checked ? 'Private session' : 'Standard'}</span></div>
+        <div class="wizard-status-row"><strong>Privacy</strong><span>${document.getElementById('privacyPrivateSession').checked ? 'プライベートセッション' : 'Standard'}</span></div>
       </div>`;
     }
     return '';
@@ -1633,7 +1633,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     body += wizardPanelForStep(step);
     document.getElementById('wizardBody').innerHTML = body;
     document.getElementById('wizardBack').style.visibility = wizardStep === 0 ? 'hidden' : 'visible';
-    document.getElementById('wizardNext').textContent = wizardStep === steps.length - 1 ? 'Finish' : 'Next';
+    document.getElementById('wizardNext').textContent = wizardStep === steps.length - 1 ? '完了' : '次へ';
   }
 
   function setWizardMetadata(enabled) {
@@ -1670,8 +1670,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       return;
     }
     el.value = value;
-    if (id === 'idMode') {
-      onModeChange();
+    if (id === 'idモード') {
+      onモードChange();
     }
     if (id === 'songLinkProvider') {
       onSongLinkProviderChange();
@@ -1717,7 +1717,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     return String(value || '').split(/[\\n,]+/).map((item) => item.trim()).filter(Boolean);
   }
 
-  function collectCustomAlbums(keepEmpty) {
+  function collectカスタムアルバムs(keepEmpty) {
     return Array.from(document.querySelectorAll('.custom-album-item')).map((item) => {
       const album = item.querySelector('[data-field="album"]').value.trim();
       const aliases = splitAliasText(item.querySelector('[data-field="aliases"]').value);
@@ -1726,23 +1726,23 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }).filter((item) => keepEmpty || (item.album && item.art_url));
   }
 
-  function renderCustomAlbums(items) {
-    customAlbums = Array.isArray(items) ? items.map((item) => ({
+  function renderカスタムアルバムs(items) {
+    customアルバムs = Array.isArray(items) ? items.map((item) => ({
       album: item.album || '',
       aliases: Array.isArray(item.aliases) ? item.aliases : splitAliasText(item.aliases || ''),
       art_url: item.art_url || ''
     })) : [];
-    const list = document.getElementById('customAlbumList');
-    if (!customAlbums.length) {
+    const list = document.getElementById('customアルバムList');
+    if (!customアルバムs.length) {
       list.innerHTML = '<div class="empty-state">No custom album art configured.</div>';
       return;
     }
-    list.innerHTML = customAlbums.map((item, index) => `
+    list.innerHTML = customアルバムs.map((item, index) => `
       <div class="custom-album-item">
         <div class="custom-album-fields">
           <div>
-            <label>Album</label>
-            <input type="text" data-field="album" value="${escapeHtml(item.album)}" placeholder="Album name">
+            <label>アルバム</label>
+            <input type="text" data-field="album" value="${escapeHtml(item.album)}" placeholder="アルバム name">
           </div>
           <div>
             <label>Alternative names</label>
@@ -1754,16 +1754,16 @@ HTML_TEMPLATE = """<!DOCTYPE html>
           </div>
         </div>
         <div class="custom-album-actions">
-          <button class="mini-btn remove" type="button" onclick="removeCustomAlbum(${index})">Remove</button>
+          <button class="mini-btn remove" type="button" onclick="removeカスタムアルバム(${index})">削除</button>
         </div>
       </div>
     `).join('');
   }
 
-  function addCustomAlbum() {
-    customAlbums = collectCustomAlbums(true);
-    customAlbums.push({ album: '', aliases: [], art_url: '' });
-    renderCustomAlbums(customAlbums);
+  function addカスタムアルバム() {
+    customアルバムs = collectカスタムアルバムs(true);
+    customアルバムs.push({ album: '', aliases: [], art_url: '' });
+    renderカスタムアルバムs(customアルバムs);
     queueAutoSave(700);
   }
 
@@ -1777,10 +1777,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
   }
 
-  function removeCustomAlbum(index) {
-    customAlbums = collectCustomAlbums(true);
-    customAlbums.splice(index, 1);
-    renderCustomAlbums(customAlbums);
+  function removeカスタムアルバム(index) {
+    customアルバムs = collectカスタムアルバムs(true);
+    customアルバムs.splice(index, 1);
+    renderカスタムアルバムs(customアルバムs);
     queueAutoSave(120);
   }
 
@@ -1823,7 +1823,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   function maybeShowEnhancedMetadataPrompt(cfg) {
-    if (!apiReady() || enhancedMetadataPromptVisible || !cfg || cfg.enhanced_metadata_prompt_seen || !cfg.intro_seen || !cfg.setup_wizard_seen) {
+    if (!api準備完了() || enhancedMetadataPromptVisible || !cfg || cfg.enhanced_metadata_prompt_seen || !cfg.intro_seen || !cfg.setup_wizard_seen) {
       return;
     }
     const enabled = !!cfg.amazon_devtools_enabled;
@@ -1909,13 +1909,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     document.getElementById('authBtn').textContent = 'Opening browser...';
     const result = await pywebview.api.lastfm_auth();
     document.getElementById('authBtn').disabled = false;
-    document.getElementById('authBtn').textContent = 'Authenticate with Last.fm';
+    document.getElementById('authBtn').textContent = 'Last.fmで認証する';
     if (result && result.ok) {
       document.getElementById('completeAuthBtn').style.display = 'inline-block';
       const status = document.getElementById('lastfmStatus');
       status.style.display = 'block';
       status.className = 'lastfm-status disconnected';
-      status.textContent = 'Approve in your browser, then click Complete Authentication.';
+      status.textContent = 'Approve in your browser, then click 認証を完了する.';
     } else {
       alert(result ? result.error : 'Authentication failed.');
     }
@@ -1926,7 +1926,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     document.getElementById('completeAuthBtn').textContent = 'Verifying...';
     const result = await pywebview.api.lastfm_complete_auth();
     document.getElementById('completeAuthBtn').disabled = false;
-    document.getElementById('completeAuthBtn').textContent = 'Complete Authentication';
+    document.getElementById('completeAuthBtn').textContent = '認証を完了する';
     if (result && result.ok) {
       document.getElementById('completeAuthBtn').style.display = 'none';
       const status = document.getElementById('lastfmStatus');
@@ -1955,7 +1955,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       showSettingsStatus('\u2717 Could not clear scrobbling tokens.', 'update-error');
     }
     btn.disabled = false;
-    btn.textContent = 'Clear Scrobbling Tokens';
+    btn.textContent = 'Clear Scrobblingトークン';
   }
 
   async function exportSettings() {
@@ -1965,7 +1965,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       if (result && result.ok) {
         showSettingsStatus('\u2713 Settings exported.', 'up-to-date');
       } else {
-        showSettingsStatus('\u2717 ' + ((result && result.error) || 'Settings export cancelled.'), 'update-error');
+        showSettingsStatus('\u2717 ' + ((result && result.error) || '設定のエクスポートがキャンセルされました。'), 'update-error');
       }
     } catch (e) {
       showSettingsStatus('\u2717 Could not export settings.', 'update-error');
@@ -1981,7 +1981,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }
         showSettingsStatus('\u2713 Settings imported.', 'up-to-date');
       } else {
-        showSettingsStatus('\u2717 ' + ((result && result.error) || 'Settings import cancelled.'), 'update-error');
+        showSettingsStatus('\u2717 ' + ((result && result.error) || '設定のインポートがキャンセルされました。'), 'update-error');
       }
     } catch (e) {
       showSettingsStatus('\u2717 Could not import settings.', 'update-error');
@@ -2022,24 +2022,24 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     wizardMetadataChoice = firstWizardRun ? true : !!cfg.amazon_devtools_enabled;
     renderSourceSummary(cfg.source_summary || {});
     if (cfg.use_custom_client_id) {
-      document.getElementById('idMode').value = 'custom';
+      document.getElementById('idモード').value = 'custom';
       document.getElementById('customIdGroup').classList.add('visible');
     } else {
-      document.getElementById('idMode').value = 'default';
+      document.getElementById('idモード').value = 'default';
       document.getElementById('customIdGroup').classList.remove('visible');
     }
     document.getElementById('clientId').value = cfg.discord_client_id || '';
-    const discordStatusModes = ['application', 'artist', 'album', 'track'];
-    document.getElementById('discordStatusDisplay').value = discordStatusModes.includes(cfg.discord_status_display) ? cfg.discord_status_display : 'artist';
+    const discordStatusモードs = ['application', 'artist', 'album', 'track'];
+    document.getElementById('discordStatusDisplay').value = discordStatusモードs.includes(cfg.discord_status_display) ? cfg.discord_status_display : 'artist';
     document.getElementById('startOnStartup').checked = !!cfg.start_on_startup;
     document.getElementById('startMinimized').checked = !!cfg.start_minimized;
     document.getElementById('showPaused').checked = cfg.show_paused !== false;
     document.getElementById('privacyPrivateSession').checked = !!cfg.privacy_private_session;
     document.getElementById('privacyDisableScrobbling').checked = cfg.privacy_disable_scrobbling !== false;
     document.getElementById('privacyBlockedKeywords').value = cfg.privacy_blocked_keywords || '';
-    document.getElementById('gameModeEnabled').checked = !!cfg.game_mode_enabled;
-    document.getElementById('gameModeProcesses').value = cfg.game_mode_processes || '';
-    renderCustomAlbums(cfg.custom_albums || []);
+    document.getElementById('gameモードEnabled').checked = !!cfg.game_mode_enabled;
+    document.getElementById('gameモードProcesses').value = cfg.game_mode_processes || '';
+    renderカスタムアルバムs(cfg.custom_albums || []);
     document.getElementById('songLinkEnabled').checked = !!cfg.song_link_enabled;
     document.getElementById('songLinkProvider').value = cfg.song_link_provider === 'deezer' ? 'deezer' : 'amazon';
     const amazonRegions = ['com', 'de', 'co.uk', 'fr', 'it', 'es', 'co.jp', 'ca', 'com.au', 'com.br', 'com.mx'];
@@ -2108,13 +2108,13 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }, 0);
   }
 
-  function apiReady() {
+  function api準備完了() {
     return !!(window.pywebview && window.pywebview.api);
   }
 
   async function waitForApi(timeoutMs = 7000) {
     const start = Date.now();
-    while (!apiReady()) {
+    while (!api準備完了()) {
       if ((Date.now() - start) > timeoutMs) {
         throw new Error('Timed out waiting for app bridge.');
       }
@@ -2196,7 +2196,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     if (!btn) {
       return;
     }
-    btn.textContent = amazonLauncherInstalled ? 'Remove Start Menu Launcher' : 'Add Start Menu Launcher';
+    btn.textContent = amazonLauncherInstalled ? '削除 Start Menu Launcher' : 'Add Start Menu Launcher';
   }
 
   function renderLauncherCandidates(items) {
@@ -2257,7 +2257,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         const method = result.method ? ' (' + result.method + ')' : '';
         showSettingsStatus('\u2713 Launcher worked.' + method, 'up-to-date');
       } else {
-        showSettingsStatus('\u2717 ' + ((result && result.error) || 'Launcher did not start enhanced metadata.'), 'update-error');
+        showSettingsStatus('\u2717 ' + ((result && result.error) || 'ランチャーは拡張メタデータを起動しませんでした。'), 'update-error');
       }
     } catch (e) {
       showSettingsStatus('\u2717 Could not test launcher.', 'update-error');
@@ -2272,10 +2272,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         const method = result.method ? ' (' + result.method + ')' : '';
         showSettingsStatus('\u2713 Amazon Music launched for metadata.' + method, 'up-to-date');
       } else {
-        showSettingsStatus('\u2717 ' + ((result && result.error) || 'Could not launch Amazon Music for metadata.'), 'update-error');
+        showSettingsStatus('\u2717 ' + ((result && result.error) || 'Amazon Musicをメタデータのために起動できませんでした。'), 'update-error');
       }
     } catch (e) {
-      showSettingsStatus('\u2717 Could not launch Amazon Music for metadata.', 'update-error');
+      showSettingsStatus('\u2717 Amazon Musicをメタデータのために起動できませんでした。', 'update-error');
     }
   }
 
@@ -2290,11 +2290,11 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         renderAmazonLauncherButton();
         showSettingsStatus(amazonLauncherInstalled ? '\u2713 Start Menu launcher added.' : '\u2713 Start Menu launcher removed.', 'up-to-date');
       } else {
-        showSettingsStatus('\u2717 ' + ((result && result.error) || 'Could not update Start Menu launcher.'), 'update-error');
+        showSettingsStatus('\u2717 ' + ((result && result.error) || 'スタートメニューランチャーを更新できませんでした。'), 'update-error');
         renderAmazonLauncherButton();
       }
     } catch (e) {
-      showSettingsStatus('\u2717 Could not update Start Menu launcher.', 'update-error');
+      showSettingsStatus('\u2717 スタートメニューランチャーを更新できませんでした。', 'update-error');
       renderAmazonLauncherButton();
     }
     btn.disabled = false;
@@ -2526,7 +2526,7 @@ class _Api:
         filename = f"AmazonMusicRPC_Settings_{datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
         try:
             from windows_file_dialog import save_file_dialog
-            path = save_file_dialog("Export Amazon Music RPC settings", filename, "json", "JSON files (*.json)|*.json|All files (*.*)|*.*", CONFIG_DIR)
+            path = save_file_dialog("Amazon Music RPCの設定をエクスポート", filename, "json", "JSONファイル (*.json)|*.json|すべてのファイル (*.*)|*.*", CONFIG_DIR)
             if not path:
                 return {"ok": False, "error": "Export cancelled."}
             payload = _settings_export_payload(load_config_for_update(), bool(include_tokens))
@@ -2539,7 +2539,7 @@ class _Api:
     def import_settings(self):
         try:
             from windows_file_dialog import open_file_dialog
-            path = open_file_dialog("Import Amazon Music RPC settings", "JSON files (*.json)|*.json|All files (*.*)|*.*", CONFIG_DIR)
+            path = open_file_dialog("Amazon Music RPCの設定をインポート", "JSONファイル (*.json)|*.json|すべてのファイル (*.*)|*.*", CONFIG_DIR)
             if not path:
                 return {"ok": False, "error": "Import cancelled."}
             with open(path, "r", encoding="utf-8") as f:

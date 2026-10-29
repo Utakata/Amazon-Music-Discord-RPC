@@ -34,9 +34,9 @@ def test_privacy_matching_accepts_string_and_list_keywords():
     assert playback.privacy_match(
         {"privacy_blocked_keywords": "Work, Secret\nPodcast"},
         "My SECRET Song",
-    ) == "Matched privacy keyword: secret"
+    ) == "一致したプライバシーキーワード: secret"
     assert playback.privacy_keywords([" One ", "TWO"]) == ["one", "two"]
-    assert playback.privacy_match({"privacy_private_session": True}, "Song") == "Private session enabled"
+    assert playback.privacy_match({"privacy_private_session": True}, "Song") == "プライベートセッションが有効です"
 
 
 def test_process_matching_accepts_windows_and_macos_names_on_any_host():

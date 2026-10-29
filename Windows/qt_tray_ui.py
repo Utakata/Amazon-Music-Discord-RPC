@@ -58,11 +58,11 @@ def _clean(value):
 
 def _status_color(status):
     text = str(status or "").lower()
-    if text in {"running", "connected", "found", "visible", "on", "standard", "amazon metadata"}:
+    if text in {"running", "connected", "found", "visible", "on", "standard", "amazon metadata", "実行中", "接続済み", "標準", "amazonメタデータ"}:
         return COLORS["success"]
-    if text in {"paused", "private", "waiting", "retrying", "hidden", "notification fallback"}:
+    if text in {"paused", "private", "waiting", "retrying", "hidden", "notification fallback", "一時停止中", "プライベート", "待機中", "通知(フォールバック)", "非表示"}:
         return COLORS["warning"]
-    if text in {"error", "unavailable", "stopped", "off", "disconnected"}:
+    if text in {"error", "unavailable", "stopped", "off", "disconnected", "利用不可", "停止中", "未接続"}:
         return COLORS["error"]
     return COLORS["muted_dark"]
 
@@ -84,17 +84,17 @@ def drawer_payload(snapshot):
     private = bool(snapshot.get("private"))
     rpc_on = str(snapshot.get("rpc") or "").lower() == "on"
     source = _clean(snapshot.get("source") or "Waiting")
-    status_label = "Private" if private else ("Paused" if source.lower() == "paused" else ("Running" if rpc_on else "Stopped"))
+    status_label = "プライベート" if private else ("一時停止中" if source == "一時停止中" else ("実行中" if rpc_on else "停止中"))
     title = _clean(snapshot.get("title"))
     artist = _clean(snapshot.get("artist"))
     album = _clean(snapshot.get("album"))
     time_label = _clean(snapshot.get("time"))
     if private:
-        title = "Private session"
-        artist = "Discord presence is hidden"
+        title = "プライベートセッション"
+        artist = "Discordプレゼンスは非表示です"
     elif not title:
-        title = "Waiting for Amazon Music"
-        artist = _clean(snapshot.get("source_detail") or "Amazon Music transport had no title")
+        title = "Amazon Musicを待機中"
+        artist = _clean(snapshot.get("source_detail") or "Amazon Musicトランスポートにタイトルがありません")
     detail = artist or _clean(snapshot.get("source_detail") or source)
     meta = ""
     if album and time_label:
@@ -106,11 +106,11 @@ def drawer_payload(snapshot):
     else:
         meta = source
     diagnostics = [
-        ("RPC", "Running" if rpc_on else "Stopped"),
-        ("Discord", _clean(snapshot.get("discord") or "Waiting")),
-        ("DevTools", _clean(snapshot.get("devtools_status") or snapshot.get("devtools") or "Waiting")),
-        ("Source", source),
-        ("Privacy", "Private" if private else "Standard"),
+        ("RPC", "実行中" if rpc_on else "停止中"),
+        ("Discord", _clean(snapshot.get("discord") or "待機中")),
+        ("DevTools", _clean(snapshot.get("devtools_status") or snapshot.get("devtools") or "待機中")),
+        ("ソース", source),
+        ("プライバシー", "プライベート" if private else "標準"),
     ]
     return {
         "status": status_label,
@@ -252,7 +252,7 @@ class TrayDrawer(QWidget):
         header = QHBoxLayout()
         self.name_label = QLabel("Amazon Music RPC")
         self.name_label.setObjectName("title")
-        self.status_pill = QLabel("Waiting")
+        self.status_pill = QLabel("待機中")
         self.status_pill.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.status_pill.setFixedHeight(22)
         self.status_pill.setMinimumWidth(72)
@@ -283,9 +283,9 @@ class TrayDrawer(QWidget):
         privacy_layout.setContentsMargins(12, 9, 12, 9)
         text_box = QVBoxLayout()
         text_box.setSpacing(2)
-        privacy_title = QLabel("Private session")
+        privacy_title = QLabel("プライベートセッション")
         privacy_title.setObjectName("value")
-        privacy_help = QLabel("Hide Discord presence while enabled")
+        privacy_help = QLabel("有効時はDiscordプレゼンスを非表示にします")
         privacy_help.setObjectName("muted")
         text_box.addWidget(privacy_title)
         text_box.addWidget(privacy_help)
@@ -296,7 +296,7 @@ class TrayDrawer(QWidget):
         privacy_layout.addWidget(self.private_toggle)
         root.addWidget(privacy_card)
 
-        section = QLabel("MINI DIAGNOSTICS")
+        section = QLabel("ミニ診断")
         section.setObjectName("section")
         root.addWidget(section)
 
@@ -323,7 +323,7 @@ class TrayDrawer(QWidget):
         divider.setStyleSheet(f"background: {COLORS['border']};")
         root.addWidget(divider)
 
-        actions_label = QLabel("ACTIONS")
+        actions_label = QLabel("アクション")
         actions_label.setObjectName("section")
         root.addWidget(actions_label)
 
@@ -331,14 +331,14 @@ class TrayDrawer(QWidget):
         self.action_grid.setHorizontalSpacing(6)
         self.action_grid.setVerticalSpacing(6)
         actions = [
-            ("Settings", "settings"),
-            ("Diagnostics", "diagnostics"),
+            ("設定", "settings"),
+            ("診断", "diagnostics"),
             ("Amazon", "launch_amazon"),
-            ("Wrong Song", "wrong_song"),
-            ("Stop RPC", "toggle_rpc"),
-            ("Updates", "updates"),
-            ("Game Mode", "game_mode"),
-            ("Quit", "quit"),
+            ("曲が違う", "wrong_song"),
+            ("RPC停止", "toggle_rpc"),
+            ("アップデート", "updates"),
+            ("ゲームモード", "game_mode"),
+            ("終了", "quit"),
         ]
         self.buttons = {}
         for index, (text, command) in enumerate(actions):
@@ -368,8 +368,8 @@ class TrayDrawer(QWidget):
         self.private_toggle.blockSignals(True)
         self.private_toggle.setChecked(bool(self.payload["private"]))
         self.private_toggle.blockSignals(False)
-        self.buttons["toggle_rpc"].setText("Stop RPC" if self.payload["rpc_on"] else "Start RPC")
-        self.buttons["game_mode"].setText("Game Mode On" if self.payload["game_mode"] else "Game Mode")
+        self.buttons["toggle_rpc"].setText("RPC停止" if self.payload["rpc_on"] else "RPC開始")
+        self.buttons["game_mode"].setText("ゲームモード(オン)" if self.payload["game_mode"] else "ゲームモード")
         for index, (label, value) in enumerate(self.payload["diagnostics"]):
             dot, name, val = self.diagnostic_rows[index]
             dot.setStyleSheet(f"color: {_status_color(value)};")
